@@ -1,5 +1,5 @@
 services:
-  chat-service:
+  chat:
     build: .
     ports:
       - "8080:8080"
@@ -14,7 +14,7 @@ services:
     depends_on:
       - db
        
-  db:
+  chat_db:
     image: postgres:16-alpine
     restart: always
     environment:
