@@ -27,9 +27,9 @@ func Load() *Config {
 	//v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	// Set defaults
-	v.SetDefault("HTTP_PORT", 8080)
+	v.SetDefault("HTTP_PORT", "8080")
 	v.SetDefault("DB_HOST", "db")
-	v.SetDefault("DB_PORT", 5432)
+	v.SetDefault("DB_PORT", "5432")
 	v.SetDefault("DB_NAME", "messages")
 	v.SetDefault("DB_USER", "postgres")
 	v.SetDefault("DB_PASSWORD", "password")
