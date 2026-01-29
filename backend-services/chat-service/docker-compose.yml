@@ -1,0 +1,38 @@
+services:
+  chat-service:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: db 
+      DB_PORT: 5432
+      DB_USER: user
+      DB_PASSWORD: password 
+      DB_NAME: appdb
+    depends_on:
+      - db
+       
+    
+    # volumes:
+    #   - .:/app
+    # #networks:
+    #  - wave-connect
+
+#networks:
+  # wave-connect:
+  #   driver: bridge
+
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: appdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
