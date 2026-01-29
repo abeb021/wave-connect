@@ -34,13 +34,15 @@ func (h *Handlers)CreateMessage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+
 	msg.ID = uuid.New()
 	row := h.DB.QueryRow(
 		r.Context(), 
 		`INSERT INTO messages (id, text, sender, receiver)
 	 	 VALUES ($1, $2, $3, $4)
 	 	 RETURNING time_sent`, 
-		msg.ID, msg.Text, msg.Sender, msg.Receiver)
+		msg.ID, msg.Text, msg.Sender, msg.Receiver,
+	)
 	
 	if err := row.Scan(&msg.TimeSent); err != nil{
 		http.Error(w, "failed to create message", http.StatusInternalServerError)
@@ -52,12 +54,8 @@ func (h *Handlers)CreateMessage(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handlers)GetMessage(w http.ResponseWriter, r *http.Request) {
-	idStr := r.PathValue("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		http.Error(w, "Invalid ID format", http.StatusBadRequest)
-		return
-	}
+	id := r.PathValue("id")
+
 	var msg Message
 	row := h.DB.QueryRow(
 		r.Context(),
@@ -65,7 +63,7 @@ func (h *Handlers)GetMessage(w http.ResponseWriter, r *http.Request) {
 		 FROM messages 
 		 WHERE id = $1`, 
 		id )
-	err = row.Scan(&msg.ID, &msg.Text , &msg.Sender, &msg.Receiver, &msg.TimeSent )
+	err := row.Scan(&msg.ID, &msg.Text , &msg.Sender, &msg.Receiver, &msg.TimeSent )
 	if err != nil{
 		if err == pgx.ErrNoRows{
 			http.Error(w, "ID not found", http.StatusNotFound)

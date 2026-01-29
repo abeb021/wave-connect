@@ -22,7 +22,7 @@ func main() {
 
 	if _, err = dbPool.Exec(ctx,
 		`CREATE TABLE IF NOT EXISTS messages (
-    	 	id SERIAL PRIMARY KEY,
+    		id UUID PRIMARY KEY,
      		text TEXT NOT NULL,
      		sender TEXT NOT NULL,
      		receiver TEXT NOT NULL,
@@ -49,7 +49,7 @@ func main() {
 	handler := GlobalMiddleware(r)
 
 	server := http.Server {
-		Addr: cfg.HTTPPort,
+		Addr: ":"+cfg.HTTPPort,
 		Handler: handler,
 	}
 
