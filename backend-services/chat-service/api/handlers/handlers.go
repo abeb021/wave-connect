@@ -6,12 +6,13 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Message struct {
-	Id       int       `json:"id"`
+	ID       uuid.UUID `json:"id"`
 	Text     string    `json:"text"`
 	Sender   string    `json:"sender"`
 	Receiver string    `json:"receiver"`
@@ -33,14 +34,15 @@ func (h *Handlers)CreateMessage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	msg.ID = uuid.New()
 	row := h.DB.QueryRow(
 		r.Context(), 
-		`INSERT INTO messages (text, sender, receiver)
-	 	 VALUES ($1, $2, $3)
-	 	 RETURNING id, time_sent`, 
-		msg.Text, msg.Sender, msg.Receiver)
+		`INSERT INTO messages (id, text, sender, receiver)
+	 	 VALUES ($1, $2, $3, $4)
+	 	 RETURNING time_sent`, 
+		msg.ID, msg.Text, msg.Sender, msg.Receiver)
 	
-	if err := row.Scan(&msg.Id, &msg.TimeSent); err != nil{
+	if err := row.Scan(&msg.TimeSent); err != nil{
 		http.Error(w, "failed to create message", http.StatusInternalServerError)
 		return
 	}
@@ -63,7 +65,7 @@ func (h *Handlers)GetMessage(w http.ResponseWriter, r *http.Request) {
 		 FROM messages 
 		 WHERE id = $1`, 
 		id )
-	err = row.Scan(&msg.Id, &msg.Text , &msg.Sender, &msg.Receiver, &msg.TimeSent )
+	err = row.Scan(&msg.ID, &msg.Text , &msg.Sender, &msg.Receiver, &msg.TimeSent )
 	if err != nil{
 		if err == pgx.ErrNoRows{
 			http.Error(w, "ID not found", http.StatusNotFound)
