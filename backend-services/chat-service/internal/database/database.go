@@ -3,19 +3,20 @@ package database
 import (
 	"context"
 	"fmt"
-	"os"
+	"chat-service/internal/config"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func NewDB(context.Context) (*pgxpool.Pool, error){
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
-        os.Getenv("DB_USER"),
-        os.Getenv("DB_PASSWORD"), 
-        os.Getenv("DB_HOST"),
-        os.Getenv("DB_PORT"),
-        os.Getenv("DB_NAME"),
-    )
-	db, err := pgxpool.New(context.Background(), connStr)
+func NewDB(ctx context.Context, cfg *config.Config) (*pgxpool.Pool, error){
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
+        cfg.DBUser,
+		cfg.DBPassword,
+		cfg.DBHost,
+		cfg.DBPort,
+		cfg.DBName,
+		cfg.DBSSLMode,
+)
+	db, err := pgxpool.New(ctx, connStr)
 	if err != nil{
 		return nil, err
 	}

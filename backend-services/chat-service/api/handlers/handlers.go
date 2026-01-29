@@ -59,7 +59,7 @@ func (h *Handlers)GetMessage(w http.ResponseWriter, r *http.Request) {
 	var msg Message
 	row := h.DB.QueryRow(
 		r.Context(),
-		`SELECT * 
+		`SELECT id, text, sender, receiver, time_sent
 		 FROM messages 
 		 WHERE id = $1`, 
 		id )
@@ -74,7 +74,8 @@ func (h *Handlers)GetMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte(msg.Text))
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(msg)
 }
 
 func (h *Handlers)UpdateMessage(w http.ResponseWriter, r *http.Request) {
@@ -100,7 +101,7 @@ func (h *Handlers)UpdateMessage(w http.ResponseWriter, r *http.Request) {
 	)
 
 	if err != nil {
-		http.Error(w, "failed to save message", http.StatusInternalServerError)
+		http.Error(w, "failed to update message", http.StatusInternalServerError)
 		return
 	}
 	if ct.RowsAffected() == 0 {
@@ -127,7 +128,7 @@ func (h *Handlers)DeleteMessage(w http.ResponseWriter, r *http.Request) {
 		id,
 	)
 	if err != nil {
-		http.Error(w, "failed to save message", http.StatusInternalServerError)
+		http.Error(w, "failed to delete message", http.StatusInternalServerError)
 		return
 	}
 	if ct.RowsAffected() == 0 {

@@ -1,9 +1,10 @@
 package main
 
 import (
-	"chat_service/api/handlers"
-	"chat_service/api/middleware"
-	"chat_service/internal/database"
+	"chat-service/api/handlers"
+	"chat-service/api/middleware"
+	"chat-service/internal/database"
+	"chat-service/internal/config"
 	"context"
 	"log"
 	"net/http"
@@ -11,7 +12,9 @@ import (
 
 func main() {
 	ctx := context.Background()
-	dbPool, err := database.NewDB(ctx)
+	cfg := config.Load()
+
+	dbPool, err := database.NewDB(ctx, cfg)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
@@ -46,7 +49,7 @@ func main() {
 	handler := GlobalMiddleware(r)
 
 	server := http.Server {
-		Addr: ":8080",
+		Addr: cfg.HTTPPort,
 		Handler: handler,
 	}
 
