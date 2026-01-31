@@ -1,4 +1,4 @@
-package database
+package repository
 
 import (
 	"chat-service/internal/config"
@@ -12,7 +12,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func NewDB(ctx context.Context, cfg *config.Config) (*pgxpool.Pool, error){
+func NewPool(ctx context.Context, cfg *config.Config) (*pgxpool.Pool, error){
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
         cfg.DBUser,
 		cfg.DBPassword,
@@ -36,11 +36,16 @@ type Message struct {
 	TimeSent time.Time `json:"timeSent"`
 }
 
-type Database struct{
+type Repository struct{
 	DB *pgxpool.Pool
 }
 
-func (ps *Database)CreateMessage(ctx context.Context, msg Message) (Message, error) {
+func NewRepository (db *pgxpool.Pool) *Repository{
+	return &Repository{
+		DB: db,
+	}
+}
+func (ps *Repository)CreateMessage(ctx context.Context, msg Message) (Message, error) {
 	msg.ID = uuid.New()
 	row := ps.DB.QueryRow(
 		ctx, 
@@ -57,7 +62,7 @@ func (ps *Database)CreateMessage(ctx context.Context, msg Message) (Message, err
 	return msg, nil
 }
 
-func (ps *Database)GetMessage(ctx context.Context, id uuid.UUID) (Message, error) {
+func (ps *Repository)GetMessage(ctx context.Context, id uuid.UUID) (Message, error) {
 
 	var msg Message
 	
@@ -80,7 +85,7 @@ func (ps *Database)GetMessage(ctx context.Context, id uuid.UUID) (Message, error
 	return msg, nil
 }
 
-func (ps *Database)UpdateMessage(ctx context.Context, id uuid.UUID, text string) (error) {
+func (ps *Repository)UpdateMessage(ctx context.Context, id uuid.UUID, text string) (error) {
 
 	ct, err := ps.DB.Exec(
 		ctx,
@@ -100,7 +105,7 @@ func (ps *Database)UpdateMessage(ctx context.Context, id uuid.UUID, text string)
 	return nil
 }
 
-func (ps *Database)DeleteMessage(ctx context.Context, id uuid.UUID) (error) {
+func (ps *Repository)DeleteMessage(ctx context.Context, id uuid.UUID) (error) {
 	ct, err := ps.DB.Exec(
 		ctx,
 		`DELETE FROM messages 

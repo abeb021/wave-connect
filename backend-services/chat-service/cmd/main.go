@@ -3,8 +3,9 @@ package main
 import (
 	"chat-service/api/handlers"
 	"chat-service/api/middleware"
-	"chat-service/internal/database"
 	"chat-service/internal/config"
+	"chat-service/internal/repository"
+	"chat-service/internal/service"
 	"context"
 	"log"
 	"net/http"
@@ -14,12 +15,12 @@ func main() {
 	ctx := context.Background()
 	cfg := config.Load()
 
-	dbPool, err := database.NewDB(ctx, cfg)
+	dbPool, err := repository.NewPool(ctx, cfg)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 	defer dbPool.Close()
-
+	
 	if _, err = dbPool.Exec(ctx,
 		`CREATE TABLE IF NOT EXISTS messages (
     		id UUID PRIMARY KEY,
@@ -31,7 +32,12 @@ func main() {
 		log.Fatal(err.Error())
 	}
 	
-	h := &handlers.Handler{DB: dbPool}
+
+
+	repo := repository.NewRepository(dbPool)
+	srv := service.NewService(repo)
+	h := &handlers.Handler{Srv: srv}
+
 
 	r := http.NewServeMux()
 

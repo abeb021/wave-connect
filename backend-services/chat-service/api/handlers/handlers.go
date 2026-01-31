@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"chat-service/internal/service"
 	"encoding/json"
 	"net/http"
 	"strconv"
@@ -20,7 +21,7 @@ type Message struct {
 }
 
 type Handler struct{
-	DB *pgxpool.Pool
+	Srv *service.Service
 }
 
 func (h *Handler)CreateMessage(w http.ResponseWriter, r *http.Request) {
