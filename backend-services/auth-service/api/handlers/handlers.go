@@ -5,12 +5,11 @@ import (
 	"net/mail"
 	"time"
 
-	"github.com/google/uuid"
 )
 
 
 type User struct {
-    ID           uuid.UUID       `json:"id"`
+    ID           string       `json:"id"`
     Email        mail.Address    `json:"email"`
     Name         string          `json:"name"`
     RegisterTime time.Time       `json:"register_time"`

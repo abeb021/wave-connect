@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 )
 
@@ -35,7 +34,7 @@ func (h *Handler)CreateMessage(w http.ResponseWriter, r *http.Request) {
 func (h *Handler)GetMessage(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	
-	msg, err := h.Srv.GetMessage(r.Context(), uuid.MustParse(id))
+	msg, err := h.Srv.GetMessage(r.Context(), id)
 	
 	if err != nil{
 		if err == pgx.ErrNoRows{
@@ -59,7 +58,7 @@ func (h *Handler)UpdateMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.Srv.UpdateMessage(r.Context(), uuid.MustParse(id), msg.Text)
+	err := h.Srv.UpdateMessage(r.Context(), id, msg.Text)
 
 	if err != nil {
 		if err.Error() == "ID not found" {
@@ -78,7 +77,7 @@ func (h *Handler)UpdateMessage(w http.ResponseWriter, r *http.Request) {
 func (h *Handler)DeleteMessage(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	
-	err := h.Srv.DeleteMessage(r.Context(), uuid.MustParse(id))
+	err := h.Srv.DeleteMessage(r.Context(), id)
 
 	if err != nil {
 		if err.Error() == "ID not found" {
