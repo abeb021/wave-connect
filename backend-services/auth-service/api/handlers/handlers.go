@@ -21,6 +21,7 @@ type Handler struct{
 }
 
 func (h *Handler)CreateUser(w http.ResponseWriter, r *http.Request){
+    
 }
 
 func (h *Handler)GetUser(w http.ResponseWriter, r *http.Request){	

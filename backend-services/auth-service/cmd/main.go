@@ -14,7 +14,10 @@ func main (){
 
 	r := http.NewServeMux()
 	r.HandleFunc("POST /api/user", h.CreateUser)
-	r.HandleFunc("POST /api/user", h.CreateUser)
+	r.HandleFunc("GET /api/user/{id}", h.CreateUser)
+	r.HandleFunc("PUT /api/user{id}", h.CreateUser)
+	r.HandleFunc("DELETE /api/user{id}", h.CreateUser)
+
 	handler := http.NewServeMux()
 
 	server := http.Server{
