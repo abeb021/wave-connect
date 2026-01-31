@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -75,10 +74,6 @@ func (ps *Repository)GetMessage(ctx context.Context, id uuid.UUID) (Message, err
 	
 	err := row.Scan(&msg.ID, &msg.Text , &msg.Sender, &msg.Receiver, &msg.TimeSent )
 	if err != nil{
-		if err == pgx.ErrNoRows{
-			return Message{}, errors.New("ID not found")
-		}
-
 		return Message{}, err
 	}
 
