@@ -4,7 +4,6 @@ import (
 	"chat-service/internal/repository"
 	"chat-service/internal/service"
 	"encoding/json"
-	"errors"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -63,7 +62,7 @@ func (h *Handler)UpdateMessage(w http.ResponseWriter, r *http.Request) {
 	err := h.Srv.UpdateMessage(r.Context(), uuid.MustParse(id), msg.Text)
 
 	if err != nil {
-		if err == errors.New("ID not found") {
+		if err.Error() == "ID not found" {
 			http.Error(w, "ID not found", http.StatusNotFound)
 			return
 		}
@@ -82,7 +81,7 @@ func (h *Handler)DeleteMessage(w http.ResponseWriter, r *http.Request) {
 	err := h.Srv.DeleteMessage(r.Context(), uuid.MustParse(id))
 
 	if err != nil {
-		if err == errors.New("ID not found") {
+		if err.Error() == "ID not found" {
 			http.Error(w, "ID not found", http.StatusNotFound)
 			return
 		}

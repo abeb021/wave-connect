@@ -17,7 +17,7 @@ func main() {
 
 	dbPool, err := repository.NewPool(ctx, cfg)
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Fatal("1"+err.Error())
 	}
 	defer dbPool.Close()
 	
@@ -29,7 +29,7 @@ func main() {
      		receiver TEXT NOT NULL,
      		time_sent TIMESTAMPTZ NOT NULL DEFAULT NOW()
 	 	);`); err != nil {
-		log.Fatal(err.Error())
+		log.Fatal("2"+err.Error())
 	}
 	
 

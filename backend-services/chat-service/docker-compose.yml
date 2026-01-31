@@ -12,7 +12,7 @@ services:
       DB_PASSWORD: $DB_PASSWORD 
       DB_NAME: $DB_NAME
     depends_on:
-      - db
+      - chat_db
        
   chat_db:
     image: postgres:16-alpine

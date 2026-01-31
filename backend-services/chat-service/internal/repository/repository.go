@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -25,14 +24,6 @@ func NewPool(ctx context.Context, cfg *config.Config) (*pgxpool.Pool, error){
 		return nil, err
 	}
 	return db, nil
-}
-
-type Message struct {
-	ID       uuid.UUID `json:"id"`
-	Text     string    `json:"text"`
-	Sender   string    `json:"sender"`
-	Receiver string    `json:"receiver"`
-	TimeSent time.Time `json:"timeSent"`
 }
 
 type Repository struct{
