@@ -31,11 +31,10 @@ func main() {
 		log.Fatal(err.Error())
 	}
 	
-	h := &handlers.Handlers{DB: dbPool}
+	h := &handlers.Handler{DB: dbPool}
 
 	r := http.NewServeMux()
 
-	r.HandleFunc("GET /", h.HeIsInRoot)
 	r.HandleFunc("POST /api/message", h.CreateMessage)
 	r.HandleFunc("GET /api/message/{id}", h.GetMessage)
 	r.HandleFunc("PUT /api/message/{id}", h.UpdateMessage)

@@ -19,15 +19,11 @@ type Message struct {
 	TimeSent time.Time `json:"timeSent"`
 }
 
-type Handlers struct{
+type Handler struct{
 	DB *pgxpool.Pool
 }
 
-func (h *Handlers)HeIsInRoot(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("omg are you here"))
-}
-
-func (h *Handlers)CreateMessage(w http.ResponseWriter, r *http.Request) {
+func (h *Handler)CreateMessage(w http.ResponseWriter, r *http.Request) {
 	var msg Message
 	err := json.NewDecoder(r.Body).Decode(&msg)
 	if err != nil {
@@ -53,7 +49,7 @@ func (h *Handlers)CreateMessage(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(msg)
 }
 
-func (h *Handlers)GetMessage(w http.ResponseWriter, r *http.Request) {
+func (h *Handler)GetMessage(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
 	var msg Message
@@ -78,7 +74,7 @@ func (h *Handlers)GetMessage(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(msg)
 }
 
-func (h *Handlers)UpdateMessage(w http.ResponseWriter, r *http.Request) {
+func (h *Handler)UpdateMessage(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	id, err := strconv.Atoi(idStr)
 	if 	err != nil {
@@ -113,7 +109,7 @@ func (h *Handlers)UpdateMessage(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (h *Handlers)DeleteMessage(w http.ResponseWriter, r *http.Request) {
+func (h *Handler)DeleteMessage(w http.ResponseWriter, r *http.Request) {
 	idStr := r.PathValue("id")
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
