@@ -9,6 +9,9 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -67,4 +70,8 @@ func main() {
 	go func (){
 		log.Fatal(server.ListenAndServe())
 	}()
+	
+	down := make(chan os.Signal, 1)
+	signal.Notify(down, syscall.SIGTERM, syscall.SIGINT)
+	<-down
 }
