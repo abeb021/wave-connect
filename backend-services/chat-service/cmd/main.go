@@ -16,9 +16,12 @@ import (
 )
 
 func main() {
-	ctx := context.Background()
+	//context and cfg startup
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	cfg := config.Load()
 
+	//migrations
 	m, err := migrate.New("file://migrations", cfg.DatabaseURL())
 	if err != nil {
 		log.Fatalf("migrate setup: %v", err)
@@ -29,16 +32,19 @@ func main() {
 		log.Fatalf("migrate up: %v", err)
 	}
 
-	dbPool, err := repository.NewPool(ctx, cfg)
+	//db pool connection
+	dbPool, err := repository.NewPool(ctx, cfg.DatabaseURL())
 	if err != nil {
 		log.Fatalf("db pool: %v", err)
 	}
 	defer dbPool.Close()
 
+	//backend architecture setup
 	repo := repository.NewRepository(dbPool)
 	srv := service.NewService(repo)
 	h := &handlers.Handler{Srv: srv}
 
+	//routing
 	r := http.NewServeMux()
 
 	r.HandleFunc("POST /api/message", h.CreateMessage)
@@ -58,5 +64,7 @@ func main() {
 		Handler: handler,
 	}
 
-	log.Fatal(server.ListenAndServe())
+	go func (){
+		log.Fatal(server.ListenAndServe())
+	}()
 }
