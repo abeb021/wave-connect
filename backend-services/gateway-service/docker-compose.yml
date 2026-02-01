@@ -1,0 +1,48 @@
+networks:
+  wave-connect:
+    driver: bridge
+
+services:
+#Chat microservice
+  chat:
+    build:
+      context: ./chat-service
+      dockerfile: Dockerfile
+    container_name: chat-service
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: chat_db
+      DB_PORT: 5432
+      DB_USER: ${DB_MESSAGES_USER}
+      DB_PASSWORD: ${DB_MESSAGES_PASSWORD}
+      DB_NAME: ${DB_MESSAGES_NAME}
+    depends_on:
+      chat_db:
+        condition: service_healthy
+    networks:
+      - wave-connect
+    restart: unless-stopped
+
+  chat_db:
+    image: postgres:16-alpine
+    container_name: chat-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_MESSAGES_USER}
+      POSTGRES_PASSWORD: ${DB_MESSAGES_PASSWORD}
+      POSTGRES_DB: ${DB_MESSAGES_NAME}
+      volumes:
+      - postgres_data_chat:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_MESSAGES_USER} -d ${DB_MESSAGES_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - wave-connect
+
+
+volumes:
+  postgres_data_chat:
