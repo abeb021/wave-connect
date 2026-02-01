@@ -9,35 +9,35 @@ import (
 	"context"
 	"log"
 	"net/http"
+
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
 func main() {
 	ctx := context.Background()
 	cfg := config.Load()
 
+	m, err := migrate.New("file://migrations", cfg.DatabaseURL())
+	if err != nil {
+		log.Fatalf("migrate setup: %v", err)
+	}
+	defer m.Close()
+
+	if err := m.Up(); err != nil && err != migrate.ErrNoChange {
+		log.Fatalf("migrate up: %v", err)
+	}
+
 	dbPool, err := repository.NewPool(ctx, cfg)
 	if err != nil {
-		log.Fatal("1"+err.Error())
+		log.Fatalf("db pool: %v", err)
 	}
 	defer dbPool.Close()
-	
-	if _, err = dbPool.Exec(ctx,
-		`CREATE TABLE IF NOT EXISTS messages (
-    		id UUID PRIMARY KEY,
-     		text TEXT NOT NULL,
-     		sender TEXT NOT NULL,
-     		receiver TEXT NOT NULL,
-     		time_sent TIMESTAMPTZ NOT NULL DEFAULT NOW()
-	 	);`); err != nil {
-		log.Fatal("2"+err.Error())
-	}
-	
-
 
 	repo := repository.NewRepository(dbPool)
 	srv := service.NewService(repo)
 	h := &handlers.Handler{Srv: srv}
-
 
 	r := http.NewServeMux()
 
@@ -53,12 +53,10 @@ func main() {
 
 	handler := GlobalMiddleware(r)
 
-	server := http.Server {
-		Addr: ":"+cfg.HTTPPort,
+	server := http.Server{
+		Addr:    ":" + cfg.HTTPPort,
 		Handler: handler,
 	}
 
 	log.Fatal(server.ListenAndServe())
 }
-
-
