@@ -4,29 +4,30 @@ import (
 	"net/http"
 	"net/mail"
 	"time"
+	"chat-service/internal/repository"
+	"chat-service/internal/service"
+	"encoding/json"
+	"net/http"
 
+	"github.com/jackc/pgx/v5"
 )
 
-
-type User struct {
-    ID           string       `json:"id"`
-    Email        mail.Address    `json:"email"`
-    Name         string          `json:"name"`
-    RegisterTime time.Time       `json:"register_time"`
-}
-
 type Handler struct{
+	Srv *service.Service
+}
+
+func (h *Handler)Register(w http.ResponseWriter, r *http.Request){
     
 }
 
-func (h *Handler)CreateUser(w http.ResponseWriter, r *http.Request){
-    
+func (h *Handler)Login(w http.ResponseWriter, r *http.Request){	
+
 }
 
-func (h *Handler)GetUser(w http.ResponseWriter, r *http.Request){	
-}
-
-func (h *Handler)UpdateUser(w http.ResponseWriter, r *http.Request){
-}
 func (h *Handler)DeleteUser(w http.ResponseWriter, r *http.Request){
+
+}
+
+func (h *Handler)GetUser(w http.ResponseWriter, r *http.Request){
+    
 }
