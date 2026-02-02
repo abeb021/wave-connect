@@ -5,10 +5,7 @@ import (
 	"auth-service/internal/service"
 	"encoding/json"
 	"net/http"
-	"net/mail"
-	"time"
 
-	"github.com/jackc/pgx/v5"
 )
 
 type Handler struct{
@@ -20,7 +17,7 @@ func NewHandler (srv *service.Service) *Handler{
 }
 
 func (h *Handler)Register(w http.ResponseWriter, r *http.Request){
-	var usr repository.User
+	var usr repository.UserRequest
     err := json.NewDecoder(r.Body).Decode(&usr)
 	if err != nil{
 		http.Error(w, err.Error(), http.StatusBadRequest)

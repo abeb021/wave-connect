@@ -3,7 +3,8 @@ package repository
 import (
 	"context"
 	"errors"
-	
+	"strings"
+
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -25,21 +26,27 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 		DB: db,
 	}
 }
-func (ps *Repository) Register(ctx context.Context, usr User) (User, error) {
-	usr.ID = uuid.New().String()
-	row := ps.DB.QueryRow(
+func (ps *Repository) Register(ctx context.Context, usr *UserDB) (*UserResponse, error) {
+	_, err := ps.DB.Exec(
 		ctx,
-		`INSERT INTO users (id, name, email, password)
-	 	 VALUES ($1, $2, $3, $4)
-	 	 RETURNING time_created`,
-		usr.ID, usr.Name, usr.Email, usr.Password,
+		`INSERT INTO users (id, username, email, password_hash)
+	 	 VALUES ($1, $2, $3, $4)`,
+		usr.ID, usr.Username, usr.Email, usr.PasswordHASH,
 	)
 
-	if err := row.Scan(&usr.TimeCreated); err != nil {
-		return User{}, err
+	if err != nil {
+		if strings.Contains(err.Error(), "dublicate") {
+			return &UserResponse{}, errors.New("username is already taken")
+		}
+		return &UserResponse{}, err
 	}
-
-	return usr, nil
+	usrResponse := UserResponse{
+		ID: usr.ID,
+		Username: usr.Username,
+		Email: usr.Email,
+		CreatedAt: usr.CreatedAt,
+	}
+	return &usrResponse, nil
 }
 
 func (ps *Repository) GetUserById(ctx context.Context, id string) (User, error) {

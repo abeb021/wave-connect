@@ -2,29 +2,54 @@ package service
 
 import (
 	"auth-service/internal/repository"
+	"auth-service/jwt"
 	"auth-service/util"
 	"context"
+	"time"
+
+	"github.com/google/uuid"
 )
 
 type Service struct {
 	Repo *repository.Repository
+	Auth *jwt.AuthService
 }
 
-func NewService(repo *repository.Repository) *Service {
+func NewService(repo *repository.Repository, jwt *jwt.AuthService) *Service {
 	return &Service{
 		Repo: repo,
+		Auth: jwt,
 	}
 }
 
-func (s *Service) Register(ctx context.Context, usr repository.User) (string, error) {
-	hashedPassword, err := util.HashPassword(usr.Password)
+func (s *Service) Register(ctx context.Context, usrRequest repository.UserRequest) (string, error) {
+	hashedPassword, err := util.HashPassword(usrRequest.Password)
 	if err != nil {
 		return "", err
 	}
-	return s.Repo.Register(ctx, usr{Password:hashedPassword})
+	usr := &repository.UserDB{
+		ID: uuid.New().String(),
+		Username: usrRequest.Username,
+		Email: usrRequest.Email,
+		PasswordHASH: hashedPassword,
+		CreatedAt: time.Now(),
+	}
+
+	_, err = s.Repo.Register(ctx, usr)
+	if err != nil{
+		return "", err
+	}
+
+	token, err := s.Auth.GenerateToken(usr.ID, usr.Email)
+	if err != nil{
+		return "", err
+	}
+
+
+	return token, nil
 }
 
-func (s *Service) GetUserById(ctx context.Context, id string) (repository.User, error) {
+func (s *Service) GetUserById(ctx context.Context, id string) (repository.UserResponse, error) {
 	return s.Repo.GetUserById(ctx, id)
 
 }

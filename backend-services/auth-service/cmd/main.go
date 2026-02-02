@@ -45,10 +45,10 @@ func main (){
 
 
 	//setup jwt service
-	jwt.NewAuthService(cfg.JWTSecret)
+	auth := jwt.NewAuthService(cfg.JWTSecret)
 	//backend architecture setup
 	repo := repository.NewRepository(dbPool)
-	srv := service.NewService(repo)
+	srv := service.NewService(repo, auth)
 	h := handlers.NewHandler(srv)
 
 	//routing

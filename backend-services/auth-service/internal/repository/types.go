@@ -5,7 +5,6 @@ import (
 )
 
 type UserRequest struct {
-	ID			string		 `json:"id"`
 	Username    string		 `json:"text"`
     Email       string       `json:"email"`
 	Password	string		 `json:"password"`
