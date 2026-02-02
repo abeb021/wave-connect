@@ -2,6 +2,7 @@ package service
 
 import (
 	"auth-service/internal/repository"
+	"auth-service/util"
 	"context"
 )
 
@@ -15,8 +16,12 @@ func NewService(repo *repository.Repository) *Service {
 	}
 }
 
-func (s *Service) Register(ctx context.Context, usr repository.User) (repository.User, error) {
-	return s.Repo.Register(ctx, usr)
+func (s *Service) Register(ctx context.Context, usr repository.User) (string, error) {
+	hashedPassword, err := util.HashPassword(usr.Password)
+	if err != nil {
+		return "", err
+	}
+	return s.Repo.Register(ctx, usr{Password:hashedPassword})
 }
 
 func (s *Service) GetUserById(ctx context.Context, id string) (repository.User, error) {

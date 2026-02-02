@@ -1,7 +1,7 @@
 CREATE TABLE users (
     id UUID PRIMARY KEY,
-    name TEXT NOT NULL,
-    password TEXT NOT NULL,
+    username TEXT NOT NULL,
     email TEXT NOT NULL,
-    time_created TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    password_hash TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 );

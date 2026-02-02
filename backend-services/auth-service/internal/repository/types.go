@@ -4,10 +4,24 @@ import (
 	"time"
 )
 
-type User struct {
+type UserRequest struct {
 	ID			string		 `json:"id"`
-	Name		string		 `json:"text"`
+	Username    string		 `json:"text"`
     Email       string       `json:"email"`
 	Password	string		 `json:"password"`
-	TimeCreated time.Time	 `json:"timeSent"`
+}
+
+type UserResponse struct {
+	ID			string		 `json:"id"`
+	Username	string		 `json:"text"`
+    Email       string       `json:"email"`
+	CreatedAt	time.Time	 `json:"created_at"`
+}
+
+type UserDB struct {
+	ID				string		 `db:"id"`
+	Username		string		 `db:"username"`
+    Email       	string       `db:"email"`
+	PasswordHASH	string		 `db:"password_hash"`
+	CreatedAt 		time.Time	 `db:"created_at"`
 }
