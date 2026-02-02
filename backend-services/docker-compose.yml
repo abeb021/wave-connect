@@ -30,11 +30,52 @@ services:
       POSTGRES_PASSWORD: ${DB_CHAT_PASSWORD}
       POSTGRES_DB: ${DB_CHAT_NAME}
     ports:
-      - "5432:5432"
+      - "${CHAT_DB_PORT}:${CHAT_DB_PORT}"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data_chat:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U \"${DB_CHAT_USER}\" -d \"${DB_CHAT_NAME}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    networks:
+      - wave-connect
+
+  auth:
+    build:
+      context: ./auth-service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    ports:
+      - "8081:8081"
+    environment:
+      DB_HOST: auth_db
+      DB_PORT: 5432
+      DB_USER: ${DB_AUTH_USER}
+      DB_PASSWORD: ${DB_AUTH_PASSWORD}
+      DB_NAME: ${DB_AUTH_NAME}
+    depends_on:
+      auth_db:
+        condition: service_healthy
+    networks:
+      - wave-connect
+    restart: unless-stopped
+
+  auth_db:
+    image: postgres:16-alpine
+    container_name: auth_db
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_AUTH_USER}
+      POSTGRES_PASSWORD: ${DB_AUTH_PASSWORD}
+      POSTGRES_DB: ${DB_AUTH_NAME}
+    ports:
+      - "${AUTH_DB_PORT}:${AUTH_DB_PORT}"
+    volumes:
+      - postgres_data_auth:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"${DB_AUTH_USER}\" -d \"${DB_AUTH_NAME}\""]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -47,4 +88,5 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:
+  postgres_data_chat:
+  postgres_data_auth:

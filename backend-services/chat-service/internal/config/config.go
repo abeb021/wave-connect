@@ -23,16 +23,15 @@ func Load() *Config {
 
 	v.SetConfigName(".env")
 	v.SetConfigType("env")
-	v.AddConfigPath("..")
+	v.AddConfigPath(".")
 	v.AutomaticEnv()
-	//v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	// Set defaults
 	v.SetDefault("HTTP_PORT", "8080")
 	v.SetDefault("DB_HOST", "db")
 	v.SetDefault("DB_PORT", "5432")
-	v.SetDefault("DB_NAME", "messages")
-	v.SetDefault("DB_USER", "postgres")
+	v.SetDefault("DB_NAME", "chat_db")
+	v.SetDefault("DB_USER", "chat_user")
 	v.SetDefault("DB_PASSWORD", "password")
 	v.SetDefault("DB_SSLMODE", "disable")
 

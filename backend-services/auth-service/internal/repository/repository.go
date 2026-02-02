@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/google/uuid"
+	_"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -48,7 +48,7 @@ func (ps *Repository) Register(ctx context.Context, usr *UserDB) (*UserResponse,
 	}
 	return &usrResponse, nil
 }
-
+/*
 func (ps *Repository) GetUserById(ctx context.Context, id string) (User, error) {
 
 	var usr User
@@ -85,3 +85,4 @@ func (ps *Repository) DeleteUser(ctx context.Context, id string) error {
 
 	return nil
 }
+*/

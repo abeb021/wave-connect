@@ -5,6 +5,7 @@ import (
 	"auth-service/jwt"
 	"auth-service/util"
 	"context"
+	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -45,10 +46,10 @@ func (s *Service) Register(ctx context.Context, usrRequest repository.UserReques
 		return "", err
 	}
 
-
+	log.Println(usr.ID)
 	return token, nil
 }
-
+/*
 func (s *Service) GetUserById(ctx context.Context, id string) (repository.UserResponse, error) {
 	return s.Repo.GetUserById(ctx, id)
 
@@ -58,3 +59,4 @@ func (s *Service) DeleteUser(ctx context.Context, id string) error {
 	return s.Repo.DeleteUser(ctx, id)
 
 }
+*/

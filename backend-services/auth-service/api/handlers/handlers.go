@@ -30,7 +30,7 @@ func (h *Handler)Register(w http.ResponseWriter, r *http.Request){
 		return 
 	}
 
-	w.Header().Set("token", token)
+	w.Header().Set("Authorization", "Bearer " + token)
 	w.WriteHeader(http.StatusCreated)
 }
 
