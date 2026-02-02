@@ -49,7 +49,7 @@ func main (){
 	//backend architecture setup
 	repo := repository.NewRepository(dbPool)
 	srv := service.NewService(repo)
-	h := &handlers.Handler{Srv: srv}
+	h := handlers.NewHandler(srv)
 
 	//routing
 	r := http.NewServeMux()

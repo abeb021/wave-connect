@@ -13,6 +13,10 @@ type Handler struct{
 	Srv *service.Service
 }
 
+func NewHandler (srv *service.Service) *Handler{
+    return &Handler{Srv: srv}
+}
+
 func (h *Handler)CreateMessage(w http.ResponseWriter, r *http.Request) {
 	var msg repository.Message
 	err := json.NewDecoder(r.Body).Decode(&msg)
