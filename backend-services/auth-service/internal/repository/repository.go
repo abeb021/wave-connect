@@ -49,7 +49,7 @@ func (ps *Repository) GetUserById(ctx context.Context, id string) (User, error) 
 	row := ps.DB.QueryRow(
 		ctx,
 		`SELECT id, name, password, email, time_created
-		 FROM messages 
+		 FROM users 
 		 WHERE id = $1`,
 		id)
 

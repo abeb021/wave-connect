@@ -6,6 +6,7 @@ import (
 	"auth-service/internal/config"
 	"auth-service/internal/repository"
 	"auth-service/internal/service"
+	"auth-service/jwt"
 	"context"
 	"log"
 	"net/http"
@@ -42,6 +43,9 @@ func main (){
 	}
 	defer dbPool.Close()
 
+
+	//setup jwt service
+	jwt.NewAuthService(cfg.JWTSecret)
 	//backend architecture setup
 	repo := repository.NewRepository(dbPool)
 	srv := service.NewService(repo)
@@ -52,8 +56,8 @@ func main (){
 
 	r.HandleFunc("POST /api/auth/register", h.Register)
 	r.HandleFunc("POST /api/auth/login", h.Login)
-	r.HandleFunc("GET /api/auth{id}", h.GetUser)
-	r.HandleFunc("DELETE /api/auth{id}", h.DeleteUser)
+	r.HandleFunc("GET /api/auth/{id}", h.GetUser)
+	r.HandleFunc("DELETE /api/auth/{id}", h.DeleteUser)
 
 	GlobalMiddleware := middleware.Chain(
 		middleware.LoggingMiddleware,
