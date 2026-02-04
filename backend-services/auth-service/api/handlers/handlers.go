@@ -45,10 +45,15 @@ func (h *Handler)Login(w http.ResponseWriter, r *http.Request){
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	log.Println(usr)
 
 	token, err := h.Srv.Login(r.Context(), &usr)
 	if err != nil {
+		if err == usecases.ErrWrongPassword {
+			http.Error(w, usecases.ErrWrongPassword.Error(), http.StatusBadRequest)
+		}
+		if err == usecases.ErrUserNotFound {
+			http.Error(w, usecases.ErrUserNotFound.Error(), http.StatusNotFound)
+		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return 
 	}

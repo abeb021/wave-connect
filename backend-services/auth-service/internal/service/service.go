@@ -26,7 +26,7 @@ func NewService(repo *repository.Repository, jwt *jwt.AuthService) *Service {
 func (s *Service) Register(ctx context.Context, usrRequest *repository.UserRequest) (*repository.UserResponse, error) {
 	hashedPassword, err := util.HashPassword(usrRequest.Password)
 	if err != nil {
-		return &repository.UserResponse{}, err
+		return nil, err
 	}
 	usr := &repository.UserDB{
 		ID: uuid.New().String(),
@@ -38,7 +38,7 @@ func (s *Service) Register(ctx context.Context, usrRequest *repository.UserReque
 
 	usrResponse, err := s.Repo.Register(ctx, usr)
 	if err != nil{
-		return &repository.UserResponse{}, err
+		return nil, err
 	}
 
 	return usrResponse, nil

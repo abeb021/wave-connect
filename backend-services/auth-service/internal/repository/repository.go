@@ -3,6 +3,7 @@ package repository
 import (
 	"auth-service/usecases"
 	"context"
+	"log"
 	"strings"
 
 	_ "github.com/google/uuid"
@@ -38,6 +39,7 @@ func (ps *Repository) Register(ctx context.Context, usr *UserDB) (*UserResponse,
 
 	if err != nil {
 		if strings.Contains(err.Error(), "dublicate") {
+			log.Println("HAPPEEE" + err.Error())
 			return nil, usecases.ErrUserTaken
 		}
 		return nil, err
