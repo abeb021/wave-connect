@@ -3,9 +3,10 @@ package handlers
 import (
 	"auth-service/internal/repository"
 	"auth-service/internal/service"
+	"auth-service/usecases"
 	"encoding/json"
+	"log"
 	"net/http"
-
 )
 
 type Handler struct{
@@ -24,17 +25,37 @@ func (h *Handler)Register(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
-	token, err := h.Srv.Register(r.Context(), usr)
+	usrResponse, err := h.Srv.Register(r.Context(), &usr)
+	if err != nil {
+		if err == usecases.ErrUserTaken{
+			http.Error(w, err.Error(), http.StatusConflict)
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return 
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(usrResponse)
+}
+
+func (h *Handler)Login(w http.ResponseWriter, r *http.Request){	
+	var usr repository.UserRequest
+	err := json.NewDecoder(r.Body).Decode(&usr)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	log.Println(usr)
+
+	token, err := h.Srv.Login(r.Context(), &usr)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return 
 	}
 
+	
 	w.Header().Set("Authorization", "Bearer " + token)
-	w.WriteHeader(http.StatusCreated)
-}
-
-func (h *Handler)Login(w http.ResponseWriter, r *http.Request){	
+	w.WriteHeader(http.StatusAccepted)
 
 }
 

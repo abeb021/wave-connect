@@ -3,9 +3,9 @@ package service
 import (
 	"auth-service/internal/repository"
 	"auth-service/jwt"
+	"auth-service/usecases"
 	"auth-service/util"
 	"context"
-	"log"
 	"time"
 
 	"github.com/google/uuid"
@@ -23,10 +23,10 @@ func NewService(repo *repository.Repository, jwt *jwt.AuthService) *Service {
 	}
 }
 
-func (s *Service) Register(ctx context.Context, usrRequest repository.UserRequest) (string, error) {
+func (s *Service) Register(ctx context.Context, usrRequest *repository.UserRequest) (*repository.UserResponse, error) {
 	hashedPassword, err := util.HashPassword(usrRequest.Password)
 	if err != nil {
-		return "", err
+		return &repository.UserResponse{}, err
 	}
 	usr := &repository.UserDB{
 		ID: uuid.New().String(),
@@ -36,17 +36,31 @@ func (s *Service) Register(ctx context.Context, usrRequest repository.UserReques
 		CreatedAt: time.Now(),
 	}
 
-	_, err = s.Repo.Register(ctx, usr)
+	usrResponse, err := s.Repo.Register(ctx, usr)
+	if err != nil{
+		return &repository.UserResponse{}, err
+	}
+
+	return usrResponse, nil
+}
+
+func (s *Service) Login(ctx context.Context, usrRequest *repository.UserRequest) (string, error) {
+	usrDB, err := s.Repo.Login(ctx, usrRequest.Username)
 	if err != nil{
 		return "", err
 	}
 
-	token, err := s.Auth.GenerateToken(usr.ID, usr.Email)
+	err = util.ValidatePassword(usrRequest.Password, usrDB.PasswordHASH)
 	if err != nil{
+		return "", usecases.ErrWrongPassword
+	}
+	
+	token, err := s.Auth.GenerateToken(usrDB.ID, usrDB.Email) 
+	if err != nil {
 		return "", err
 	}
 
-	log.Println(usr.ID)
+
 	return token, nil
 }
 /*
