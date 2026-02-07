@@ -63,14 +63,11 @@ func (s *Service) Login(ctx context.Context, usrRequest *repository.UserRequest)
 
 	return token, nil
 }
-/*
-func (s *Service) GetUserById(ctx context.Context, id string) (repository.UserResponse, error) {
-	return s.Repo.GetUserById(ctx, id)
 
+func (s *Service) GetUserById(ctx context.Context, id string) (*repository.UserResponse, error) {
+	return s.Repo.GetUserById(ctx, id)
 }
 
 func (s *Service) DeleteUser(ctx context.Context, id string) error {
 	return s.Repo.DeleteUser(ctx, id)
-
 }
-*/

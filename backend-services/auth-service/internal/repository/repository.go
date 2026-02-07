@@ -3,7 +3,6 @@ package repository
 import (
 	"auth-service/usecases"
 	"context"
-	"log"
 	"strings"
 
 	_ "github.com/google/uuid"
@@ -39,7 +38,6 @@ func (ps *Repository) Register(ctx context.Context, usr *UserDB) (*UserResponse,
 
 	if err != nil {
 		if strings.Contains(err.Error(), "dublicate") {
-			log.Println("HAPPEEE" + err.Error())
 			return nil, usecases.ErrUserTaken
 		}
 		return nil, err
@@ -81,21 +79,23 @@ func (ps *Repository) Login(ctx context.Context, identifier string) (*UserDB, er
     return &usrDB, nil
 }
 
-/*
-func (ps *Repository) GetUserById(ctx context.Context, id string) (User, error) {
 
-	var usr User
+func (ps *Repository) GetUserById(ctx context.Context, id string) (*UserResponse, error) {
+	usr := &UserResponse{}
 
 	row := ps.DB.QueryRow(
 		ctx,
-		`SELECT id, name, password, email, time_created
+		`SELECT id, username, email, created_at
 		 FROM users 
 		 WHERE id = $1`,
 		id)
 
-	err := row.Scan(&usr.ID, &usr.Name, &usr.Password, &usr.Email, &usr.TimeCreated)
+	err := row.Scan(&usr.ID, &usr.Username, &usr.Email, &usr.CreatedAt)
 	if err != nil {
-		return User{}, err
+		if err == pgx.ErrNoRows {
+            return nil, usecases.ErrUserNotFound
+        }
+		return nil, err
 	}
 
 	return usr, nil
@@ -113,9 +113,7 @@ func (ps *Repository) DeleteUser(ctx context.Context, id string) error {
 		return err
 	}
 	if ct.RowsAffected() == 0 {
-		return errors.New("ID not found")
+		return usecases.ErrUserNotFound
 	}
-
 	return nil
 }
-*/

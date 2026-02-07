@@ -28,6 +28,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if err == usecases.ErrUserTaken {
 			http.Error(w, err.Error(), http.StatusConflict)
+			return
 		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -49,9 +50,11 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if err == usecases.ErrWrongPassword {
 			http.Error(w, usecases.ErrWrongPassword.Error(), http.StatusBadRequest)
+			return
 		}
 		if err == usecases.ErrUserNotFound {
 			http.Error(w, usecases.ErrUserNotFound.Error(), http.StatusNotFound)
+			return
 		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -62,10 +65,39 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 }
 
-func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-
-}
 
 func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
 
+	usrResponse, err := h.Srv.GetUserById(r.Context(), id)
+	if err != nil {
+		if err == usecases.ErrUserNotFound{
+			http.Error(w, usecases.ErrUserNotFound.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(usrResponse)
 }
+
+
+func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+
+	err := h.Srv.DeleteUser(r.Context(), id)
+	if err != nil{
+		if err == usecases.ErrUserNotFound {
+			http.Error(w, usecases.ErrUserNotFound.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusAccepted)
+}
+
+
