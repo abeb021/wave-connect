@@ -5,32 +5,28 @@ services:
     build:
       context: ./chat-service
       dockerfile: Dockerfile
-    container_name: chat-service
-    ports:
-      - "8080:8080"
     environment:
       DB_HOST: chat_db
-      DB_PORT: ${CHAT_DB_PORT}
+      DB_PORT: 5432
       DB_USER: ${DB_CHAT_USER}
       DB_PASSWORD: ${DB_CHAT_PASSWORD}
       DB_NAME: ${DB_CHAT_NAME}
+    expose:
+      - 8082
     depends_on:
       chat_db:
         condition: service_healthy
-    networks:
-      - wave-connect
     restart: unless-stopped
 
   chat_db:
     image: postgres:16-alpine
-    container_name: chat_db
     restart: always
     environment:
       POSTGRES_USER: ${DB_CHAT_USER}
       POSTGRES_PASSWORD: ${DB_CHAT_PASSWORD}
       POSTGRES_DB: ${DB_CHAT_NAME}
-    ports:
-      - "${CHAT_DB_PORT}:${CHAT_DB_PORT}"
+    expose:
+      - 5432
     volumes:
       - postgres_data_chat:/var/lib/postgresql/data
     healthcheck:
@@ -39,39 +35,32 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
-    networks:
-      - wave-connect
-
   auth:
     build:
       context: ./auth-service
       dockerfile: Dockerfile
-    container_name: auth-service
-    ports:
-      - "8081:8081"
     environment:
       DB_HOST: auth_db
       DB_PORT: 5432
       DB_USER: ${DB_AUTH_USER}
       DB_PASSWORD: ${DB_AUTH_PASSWORD}
       DB_NAME: ${DB_AUTH_NAME}
+      expose:
+      - 8081
     depends_on:
       auth_db:
         condition: service_healthy
-    networks:
-      - wave-connect
     restart: unless-stopped
 
   auth_db:
     image: postgres:16-alpine
-    container_name: auth_db
     restart: always
     environment:
       POSTGRES_USER: ${DB_AUTH_USER}
       POSTGRES_PASSWORD: ${DB_AUTH_PASSWORD}
       POSTGRES_DB: ${DB_AUTH_NAME}
-    ports:
-      - "${AUTH_DB_PORT}:${AUTH_DB_PORT}"
+    expose:
+      - 5432
     volumes:
       - postgres_data_auth:/var/lib/postgresql/data
     healthcheck:
@@ -80,8 +69,22 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s
-    networks:
-      - wave-connect
+
+
+  gateway:
+    build:
+      context: ./gateway-service
+      dockerfile: Dockerfile
+    environment:
+      - JWT_SECRET=value
+  
+
+
+
+
+
+
+
 
 networks:
   wave-connect:

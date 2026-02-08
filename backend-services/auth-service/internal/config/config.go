@@ -15,7 +15,6 @@ type Config struct {
 	DBName     string
 	DBSSLMode  string
 
-	HTTPPort   string
 	JWTSecret  string
 }
 
@@ -29,7 +28,6 @@ func Load() *Config {
 	//v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	// Set defaults
-	v.SetDefault("HTTP_PORT", "8081")
 	v.SetDefault("JWT_SECRET", "CHANGEME")
 	v.SetDefault("DB_HOST", "auth_db")
 	v.SetDefault("DB_PORT", "5433")
@@ -45,7 +43,6 @@ func Load() *Config {
 	}
 
 	cfg := &Config{
-		HTTPPort:   v.GetString("HTTP_PORT"),
 		JWTSecret:  v.GetString("JWT_SECRET"),
 		DBHost:     v.GetString("DB_HOST"),
 		DBPort:     v.GetString("DB_PORT"),

@@ -8,14 +8,10 @@ import (
 )
 
 type Config struct {
-	DBUser     string
-	DBPassword string
-	DBHost     string
-	DBPort     string
-	DBName     string
-	DBSSLMode  string
+	AuthServiceURL string
+	ChatServiceURL string
 
-	HTTPPort string
+	JWTSecret string
 }
 
 func Load() *Config {

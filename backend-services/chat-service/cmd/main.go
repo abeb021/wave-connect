@@ -63,7 +63,7 @@ func main() {
 	handler := GlobalMiddleware(r)
 
 	server := http.Server{
-		Addr:    ":" + cfg.HTTPPort,
+		Addr:    ":8082",
 		Handler: handler,
 	}
 
