@@ -1,3 +1,3 @@
 package middleware
 
-func JWTMiddleware
+func JWTMiddleware(){}
