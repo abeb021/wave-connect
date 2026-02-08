@@ -37,7 +37,7 @@ func (ps *Repository) Register(ctx context.Context, usr *UserDB) (*UserResponse,
 	)
 
 	if err != nil {
-		if strings.Contains(err.Error(), "dublicate") {
+		if strings.Contains(err.Error(), "duplicate") {
 			return nil, usecases.ErrUserTaken
 		}
 		return nil, err
