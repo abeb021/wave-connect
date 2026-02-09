@@ -4,25 +4,19 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"strings"
+	"log"
 )
 
-func NewProxy(authURL, chatURL string) http.Handler {
-	authTarget, _ := url.Parse(authURL)
-	chatTarget, _ := url.Parse(chatURL)
+func NewProxy (target string) http.HandlerFunc {
+	targetURL, err := url.Parse(target)
+	if err != nil {
+		log.Printf("Invalid target %s, err: %v", target, err)
+		return nil
+	}
 
-	authProxy := httputil.NewSingleHostReverseProxy(authTarget)
-	chatProxy := httputil.NewSingleHostReverseProxy(chatTarget)
-	
+	proxy := httputil.NewSingleHostReverseProxy(targetURL)
 
-	return http.HandlerFunc(func (w http.ResponseWriter, r *http.Request) {
-		switch {
-		case strings.HasPrefix(r.URL.Path, "/api/auth"):
-			authProxy.ServeHTTP(w, r)
-		case strings.HasPrefix(r.URL.Path, "/api/message"):
-			chatProxy.ServeHTTP(w, r)
-		default:
-			http.NotFound(w, r)
-		}
-	})
+	return func (w http.ResponseWriter, r *http.Request) {
+		proxy.ServeHTTP(w, r)
+	}
 }

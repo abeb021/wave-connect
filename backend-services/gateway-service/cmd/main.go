@@ -1,9 +1,10 @@
 package main
 
 import (
+	"gateway-service/api"
 	"gateway-service/api/middleware"
 	"gateway-service/internal/config"
-	"gateway-service/internal/proxy"
+	"gateway-service/internal/service"
 	"log"
 	"net/http"
 	"os"
@@ -13,17 +14,27 @@ import (
 
 func main(){
 	cfg := config.Load()
-	proxy := proxy.NewProxy(cfg.AuthServiceURL, cfg.ChatServiceURL)
+	
+	service := service.NewService(
+		cfg.AuthServiceURL,
+		cfg.ChatServiceURL, 
+		cfg.JWTSecret,
+	)
 
-	handler := middleware.Chain(
+	handler := http.NewServeMux()
+
+	handlers.RegisterRoutes(handler, service)
+
+	middleware.Chain(
 		middleware.CorsMiddleware,
 		middleware.LoggingMiddleware,
-	) (proxy)
+	) (handler)
 
 	server := http.Server{
 		Addr:    ":8080",
 		Handler: handler,
 	}
+
 
 	go func (){
 		log.Fatal(server.ListenAndServe())
