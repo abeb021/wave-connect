@@ -12,12 +12,12 @@ import (
 	"syscall"
 )
 
-func main(){
+func main() {
 	cfg := config.Load()
-	
+
 	service := service.NewService(
 		cfg.AuthServiceURL,
-		cfg.ChatServiceURL, 
+		cfg.ChatServiceURL,
 		cfg.JWTSecret,
 	)
 
@@ -28,18 +28,17 @@ func main(){
 	middleware.Chain(
 		middleware.CorsMiddleware,
 		middleware.LoggingMiddleware,
-	) (handler)
+	)(handler)
 
 	server := http.Server{
 		Addr:    ":8080",
 		Handler: handler,
 	}
 
-
-	go func (){
+	go func() {
 		log.Fatal(server.ListenAndServe())
 	}()
-	
+
 	down := make(chan os.Signal, 1)
 	signal.Notify(down, syscall.SIGTERM, syscall.SIGINT)
 	<-down

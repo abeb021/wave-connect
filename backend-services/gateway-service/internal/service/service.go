@@ -1,10 +1,9 @@
 package service
 
 import (
-	"net/http"
 	"gateway-service/internal/proxy"
+	"net/http"
 )
-
 
 type Service struct {
 	AuthURL   string
@@ -12,18 +11,18 @@ type Service struct {
 	JWTSecret string
 }
 
-func NewService(AuthURL, ChatURL, JWTSecret string) *Service{
+func NewService(AuthURL, ChatURL, JWTSecret string) *Service {
 	return &Service{
-		AuthURL: AuthURL,
-		ChatURL: ChatURL,
+		AuthURL:   AuthURL,
+		ChatURL:   ChatURL,
 		JWTSecret: JWTSecret,
 	}
 }
 
-func (s *Service)AuthProxy() http.Handler{
+func (s *Service) AuthProxy() http.Handler {
 	return proxy.NewProxy(s.AuthURL)
 }
 
-func (s *Service)ChatProxy() http.Handler{
+func (s *Service) ChatProxy() http.Handler {
 	return proxy.NewProxy(s.ChatURL)
 }
