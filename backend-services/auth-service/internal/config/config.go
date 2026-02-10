@@ -28,12 +28,12 @@ func Load() *Config {
 	//v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	// Set defaults
-	v.SetDefault("JWT_SECRET", "CHANGEME")
-	v.SetDefault("DB_HOST", "auth_db")
-	v.SetDefault("DB_PORT", "5433")
-	v.SetDefault("DB_NAME", "auth_db")
-	v.SetDefault("DB_USER", "auth_user")
-	v.SetDefault("DB_PASSWORD", "password")
+	// v.SetDefault("JWT_SECRET", "changeme")
+	// v.SetDefault("DB_HOST", "auth_db")
+	// v.SetDefault("DB_PORT", "5433")
+	// v.SetDefault("DB_NAME", "auth_db")
+	// v.SetDefault("DB_USER", "auth_user")
+	// v.SetDefault("DB_PASSWORD", "password")
 	v.SetDefault("DB_SSLMODE", "disable")
 
 	if err := v.ReadInConfig(); err != nil {
@@ -51,7 +51,6 @@ func Load() *Config {
 		DBName:     v.GetString("DB_NAME"),
 		DBSSLMode:  v.GetString("DB_SSLMODE"),
 	}
-
 	return cfg
 }
 

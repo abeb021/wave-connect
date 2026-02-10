@@ -22,7 +22,7 @@ func JWTMiddleware(secret, authServiceURL string, next http.Handler) http.Handle
 			http.Error(w, "Missing authorization header", http.StatusUnauthorized)
 			return
 		}
-		
+
 		separated := strings.Split(authHeader, " ")
 		if len(separated) != 2 || separated[0] != "Bearer"{
 			http.Error(w, "Malformed authorization header", http.StatusUnauthorized)
@@ -34,14 +34,13 @@ func JWTMiddleware(secret, authServiceURL string, next http.Handler) http.Handle
 		})
 		if err != nil || !token.Valid{
 			http.Error(w, "Invalid token", http.StatusUnauthorized)
-			log.Println("2")
+			    log.Printf("JWT validation failed: %v, token.Valid: %v", err, token.Valid)
 			return
 		}
 
 		userID, err := token.Claims.GetSubject()
 		if err != nil || userID == ""{
 			http.Error(w, "Empty Token", http.StatusUnauthorized)
-			log.Println("3")
 			return
 		}
 

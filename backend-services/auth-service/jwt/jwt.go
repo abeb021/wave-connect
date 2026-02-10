@@ -7,8 +7,8 @@ import (
 )
 
 type UserClaims struct {
-	UserID string  `json:"user_id"`
-	Email  string  `json:"email"`
+	//UserID string  `json:"user_id"`
+	//Email  string  `json:"email"`
 	jwt.RegisteredClaims
 }
 
@@ -22,8 +22,6 @@ func NewAuthService(key string) *AuthService {
 
 func (a *AuthService) GenerateToken(userID, email string) (string, error){
 	claims := UserClaims{
-		UserID: userID,
-		Email: email,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer: "auth-service",
 			Subject: userID,
