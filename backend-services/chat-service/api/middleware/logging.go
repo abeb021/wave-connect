@@ -7,11 +7,11 @@ import (
 )
 
 func LoggingMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func (w http.ResponseWriter, r *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
 		ww := &responseWriter{ResponseWriter: w}
-		
+
 		next.ServeHTTP(ww, r)
 
 		log.Printf(
@@ -30,7 +30,7 @@ type responseWriter struct {
 	status int
 }
 
-func (rw *responseWriter) WriteHeader(statusCode int){
+func (rw *responseWriter) WriteHeader(statusCode int) {
 	rw.status = statusCode
 	rw.ResponseWriter.WriteHeader(statusCode)
 }

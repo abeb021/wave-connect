@@ -67,10 +67,10 @@ func main() {
 		Handler: handler,
 	}
 
-	go func (){
+	go func() {
 		log.Fatal(server.ListenAndServe())
 	}()
-	
+
 	down := make(chan os.Signal, 1)
 	signal.Notify(down, syscall.SIGTERM, syscall.SIGINT)
 	<-down

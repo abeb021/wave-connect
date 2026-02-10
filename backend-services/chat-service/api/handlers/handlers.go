@@ -9,15 +9,15 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-type Handler struct{
+type Handler struct {
 	Srv *service.Service
 }
 
-func NewHandler (srv *service.Service) *Handler{
-    return &Handler{Srv: srv}
+func NewHandler(srv *service.Service) *Handler {
+	return &Handler{Srv: srv}
 }
 
-func (h *Handler)CreateMessage(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) CreateMessage(w http.ResponseWriter, r *http.Request) {
 	var msg repository.Message
 	err := json.NewDecoder(r.Body).Decode(&msg)
 	if err != nil {
@@ -26,7 +26,7 @@ func (h *Handler)CreateMessage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	msg, err = h.Srv.CreateMessage(r.Context(), msg)
-	if err != nil{
+	if err != nil {
 		http.Error(w, "failed to create message", http.StatusInternalServerError)
 		return
 	}
@@ -35,13 +35,13 @@ func (h *Handler)CreateMessage(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(msg)
 }
 
-func (h *Handler)GetMessage(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetMessage(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
-	
+
 	msg, err := h.Srv.GetMessage(r.Context(), id)
-	
-	if err != nil{
-		if err == pgx.ErrNoRows{
+
+	if err != nil {
+		if err == pgx.ErrNoRows {
 			http.Error(w, "ID not found", http.StatusNotFound)
 			return
 		}
@@ -53,11 +53,11 @@ func (h *Handler)GetMessage(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(msg)
 }
 
-func (h *Handler)UpdateMessage(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) UpdateMessage(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
 	var msg repository.Message
-	if 	decodeErr := json.NewDecoder(r.Body).Decode(&msg); decodeErr != nil {
+	if decodeErr := json.NewDecoder(r.Body).Decode(&msg); decodeErr != nil {
 		http.Error(w, decodeErr.Error(), http.StatusBadRequest)
 		return
 	}
@@ -73,14 +73,13 @@ func (h *Handler)UpdateMessage(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	w.WriteHeader(http.StatusNoContent)
 
 }
 
-func (h *Handler)DeleteMessage(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) DeleteMessage(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
-	
+
 	err := h.Srv.DeleteMessage(r.Context(), id)
 
 	if err != nil {
@@ -91,6 +90,6 @@ func (h *Handler)DeleteMessage(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "failed to delete message", http.StatusInternalServerError)
 		return
 	}
-	
+
 	w.WriteHeader(http.StatusNoContent)
 }
