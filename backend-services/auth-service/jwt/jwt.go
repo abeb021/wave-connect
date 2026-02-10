@@ -12,7 +12,7 @@ type UserClaims struct {
 	jwt.RegisteredClaims
 }
 
-type AuthService struct{
+type AuthService struct {
 	secret []byte
 }
 
@@ -20,16 +20,16 @@ func NewAuthService(key string) *AuthService {
 	return &AuthService{secret: []byte(key)}
 }
 
-func (a *AuthService) GenerateToken(userID, email string) (string, error){
+func (a *AuthService) GenerateToken(userID, email string) (string, error) {
 	claims := UserClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer: "auth-service",
-			Subject: userID,
-			Audience: []string{"wave-connect"},
-			IssuedAt: jwt.NewNumericDate(time.Now()),
+			Issuer:    "auth-service",
+			Subject:   userID,
+			Audience:  []string{"wave-connect"},
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
-			ID: "",
+			ID:        "",
 		},
 	}
 
@@ -37,13 +37,13 @@ func (a *AuthService) GenerateToken(userID, email string) (string, error){
 	return token.SignedString(a.secret)
 }
 
-func (a *AuthService) ValidateToken(tokenString string) (bool, error){
+func (a *AuthService) ValidateToken(tokenString string) (bool, error) {
 	claims := &UserClaims{}
-	token, err := jwt.ParseWithClaims(tokenString, claims, func (token *jwt.Token) (interface{}, error) {
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return a.secret, nil
 	})
 
-	if err != nil{
+	if err != nil {
 		return false, err
 	}
 

@@ -19,7 +19,7 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-func main (){
+func main() {
 	//context and cfg startup
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -42,7 +42,6 @@ func main (){
 		log.Fatalf("db pool: %v", err)
 	}
 	defer dbPool.Close()
-
 
 	//setup jwt service
 	auth := jwt.NewAuthService(cfg.JWTSecret)
@@ -71,10 +70,10 @@ func main (){
 		Handler: handler,
 	}
 
-	go func (){
+	go func() {
 		log.Fatal(server.ListenAndServe())
 	}()
-	
+
 	down := make(chan os.Signal, 1)
 	signal.Notify(down, syscall.SIGTERM, syscall.SIGINT)
 	<-down

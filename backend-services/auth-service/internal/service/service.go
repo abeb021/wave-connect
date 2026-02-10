@@ -29,15 +29,15 @@ func (s *Service) Register(ctx context.Context, usrRequest *repository.UserReque
 		return nil, err
 	}
 	usr := &repository.UserDB{
-		ID: uuid.New().String(),
-		Username: usrRequest.Username,
-		Email: usrRequest.Email,
+		ID:           uuid.New().String(),
+		Username:     usrRequest.Username,
+		Email:        usrRequest.Email,
 		PasswordHASH: hashedPassword,
-		CreatedAt: time.Now(),
+		CreatedAt:    time.Now(),
 	}
 
 	usrResponse, err := s.Repo.Register(ctx, usr)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 
@@ -46,20 +46,19 @@ func (s *Service) Register(ctx context.Context, usrRequest *repository.UserReque
 
 func (s *Service) Login(ctx context.Context, usrRequest *repository.UserRequest) (string, error) {
 	usrDB, err := s.Repo.Login(ctx, usrRequest.Username)
-	if err != nil{
-		return "", err
-	}
-
-	err = util.ValidatePassword(usrRequest.Password, usrDB.PasswordHASH)
-	if err != nil{
-		return "", usecases.ErrWrongPassword
-	}
-	
-	token, err := s.Auth.GenerateToken(usrDB.ID, usrDB.Email) 
 	if err != nil {
 		return "", err
 	}
 
+	err = util.ValidatePassword(usrRequest.Password, usrDB.PasswordHASH)
+	if err != nil {
+		return "", usecases.ErrWrongPassword
+	}
+
+	token, err := s.Auth.GenerateToken(usrDB.ID, usrDB.Email)
+	if err != nil {
+		return "", err
+	}
 
 	return token, nil
 }

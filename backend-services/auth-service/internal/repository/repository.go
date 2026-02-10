@@ -43,42 +43,41 @@ func (ps *Repository) Register(ctx context.Context, usr *UserDB) (*UserResponse,
 		return nil, err
 	}
 	usrResponse := UserResponse{
-		ID: usr.ID,
-		Username: usr.Username,
-		Email: usr.Email,
+		ID:        usr.ID,
+		Username:  usr.Username,
+		Email:     usr.Email,
 		CreatedAt: usr.CreatedAt,
 	}
 	return &usrResponse, nil
 }
 
 func (ps *Repository) Login(ctx context.Context, identifier string) (*UserDB, error) {
-    
-	if strings.TrimSpace(identifier) == "" {
-        return nil, usecases.ErrUserNotFound
-    }
 
-	var usrDB UserDB    
-    row := ps.DB.QueryRow(
-        ctx,
-        `SELECT id, username, email, password_hash
+	if strings.TrimSpace(identifier) == "" {
+		return nil, usecases.ErrUserNotFound
+	}
+
+	var usrDB UserDB
+	row := ps.DB.QueryRow(
+		ctx,
+		`SELECT id, username, email, password_hash
          FROM users 
          WHERE username = $1 OR email = $1
          LIMIT 1`,
-        identifier,
-    )
+		identifier,
+	)
 
-    err := row.Scan(&usrDB.ID, &usrDB.Username, &usrDB.Email, &usrDB.PasswordHASH)
-    
-    if err != nil {
-        if err == pgx.ErrNoRows {
-            return nil, usecases.ErrUserNotFound
-        }
-        return nil, err
-    }
-    
-    return &usrDB, nil
+	err := row.Scan(&usrDB.ID, &usrDB.Username, &usrDB.Email, &usrDB.PasswordHASH)
+
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, usecases.ErrUserNotFound
+		}
+		return nil, err
+	}
+
+	return &usrDB, nil
 }
-
 
 func (ps *Repository) GetUserById(ctx context.Context, id string) (*UserResponse, error) {
 	usr := &UserResponse{}
@@ -93,8 +92,8 @@ func (ps *Repository) GetUserById(ctx context.Context, id string) (*UserResponse
 	err := row.Scan(&usr.ID, &usr.Username, &usr.Email, &usr.CreatedAt)
 	if err != nil {
 		if err == pgx.ErrNoRows {
-            return nil, usecases.ErrUserNotFound
-        }
+			return nil, usecases.ErrUserNotFound
+		}
 		return nil, err
 	}
 

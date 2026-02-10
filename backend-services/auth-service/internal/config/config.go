@@ -15,7 +15,7 @@ type Config struct {
 	DBName     string
 	DBSSLMode  string
 
-	JWTSecret  string
+	JWTSecret string
 }
 
 func Load() *Config {
@@ -55,7 +55,7 @@ func Load() *Config {
 	return cfg
 }
 
-func (c *Config) DatabaseURL () string{
+func (c *Config) DatabaseURL() string {
 	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s",
 		c.DBUser,
 		c.DBPassword,

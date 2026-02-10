@@ -59,19 +59,17 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	
 
-	w.Header().Set("Authorization", "Bearer " + token)
+	w.Header().Set("Authorization", "Bearer "+token)
 	w.WriteHeader(http.StatusAccepted)
 }
-
 
 func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
 	usrResponse, err := h.Srv.GetUserById(r.Context(), id)
 	if err != nil {
-		if err == usecases.ErrUserNotFound{
+		if err == usecases.ErrUserNotFound {
 			http.Error(w, usecases.ErrUserNotFound.Error(), http.StatusNotFound)
 			return
 		}
@@ -84,12 +82,11 @@ func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(usrResponse)
 }
 
-
 func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
 	err := h.Srv.DeleteUser(r.Context(), id)
-	if err != nil{
+	if err != nil {
 		if err == usecases.ErrUserNotFound {
 			http.Error(w, usecases.ErrUserNotFound.Error(), http.StatusNotFound)
 			return
@@ -100,5 +97,3 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusAccepted)
 }
-
-
