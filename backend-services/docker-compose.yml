@@ -49,6 +49,7 @@ services:
       DB_USER: ${DB_AUTH_USER}
       DB_PASSWORD: ${DB_AUTH_PASSWORD}
       DB_NAME: ${DB_AUTH_NAME}
+      JWT_SECRET: ${JWT_SECRET}
     expose:
       - 8081
     networks:

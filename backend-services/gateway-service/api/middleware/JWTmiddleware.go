@@ -44,7 +44,7 @@ func JWTMiddleware(secret, authServiceURL string, next http.Handler) http.Handle
 			return
 		}
 
-		authURL := fmt.Sprintf("%s/auth/user/%s", authServiceURL, userID)
+		authURL := fmt.Sprintf("%s/api/auth/%s", authServiceURL, userID)
 		req, err := http.NewRequest(http.MethodGet, authURL, nil)
 		if err != nil{
 			http.Error(w, "Internal server error", http.StatusInternalServerError)

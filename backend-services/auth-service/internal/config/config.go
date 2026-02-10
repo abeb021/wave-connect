@@ -51,6 +51,7 @@ func Load() *Config {
 		DBName:     v.GetString("DB_NAME"),
 		DBSSLMode:  v.GetString("DB_SSLMODE"),
 	}
+
 	return cfg
 }
 
