@@ -1,44 +1,24 @@
 # Optional: copy .env.example to .env and set your own values.
 # These defaults let it run without a .env file (dev only).
 services:
-  chat:
+
+  gateway:
     build:
-      context: ./chat-service
+      context: ./gateway-service
       dockerfile: Dockerfile
     environment:
-      DB_HOST: chat_db
-      DB_PORT: "5432"
-      DB_USER: ${DB_CHAT_USER}
-      DB_PASSWORD: ${DB_CHAT_PASSWORD}
-      DB_NAME: ${DB_CHAT_NAME}
-    expose:
-      - 8082
+      - JWT_SECRET=${JWT_SECRET}
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
+      - CHAT_SERVICE_URL=${CHAT_SERVICE_URL}
+    ports:
+      - "8080:8080"
     networks:
       - wave-connect
     depends_on:
-      chat_db:
-        condition: service_healthy
+      - auth
+      - chat
     restart: unless-stopped
 
-  chat_db:
-    image: postgres:16-alpine
-    restart: always
-    environment:
-      POSTGRES_USER: ${DB_CHAT_USER}
-      POSTGRES_PASSWORD: ${DB_CHAT_PASSWORD}
-      POSTGRES_DB: ${DB_CHAT_NAME}
-    expose:
-      - 5432
-    networks:
-      - wave-connect
-    volumes:
-      - postgres_data_chat:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U \"${DB_CHAT_USER}\" -d \"${DB_CHAT_NAME}\""]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
   auth:
     build:
       context: ./auth-service
@@ -79,28 +59,90 @@ services:
       retries: 10
       start_period: 10s
 
-
-  gateway:
+  chat:
     build:
-      context: ./gateway-service
+      context: ./chat-service
       dockerfile: Dockerfile
     environment:
-      - JWT_SECRET=${JWT_SECRET}
-      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
-      - CHAT_SERVICE_URL=${CHAT_SERVICE_URL}
-    ports:
-      - "8080:8080"
+      DB_HOST: chat_db
+      DB_PORT: "5432"
+      DB_USER: ${DB_CHAT_USER}
+      DB_PASSWORD: ${DB_CHAT_PASSWORD}
+      DB_NAME: ${DB_CHAT_NAME}
+    expose:
+      - 8082
     networks:
       - wave-connect
     depends_on:
-      - auth
-      - chat
+      chat_db:
+        condition: service_healthy
     restart: unless-stopped
+
+  chat_db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_CHAT_USER}
+      POSTGRES_PASSWORD: ${DB_CHAT_PASSWORD}
+      POSTGRES_DB: ${DB_CHAT_NAME}
+    expose:
+      - 5432
+    networks:
+      - wave-connect
+    volumes:
+      - postgres_data_chat:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"${DB_CHAT_USER}\" -d \"${DB_CHAT_NAME}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  feed:
+    build:
+      context: ./feed-service
+      dockerfile: Dockerfile
+    environment:
+      DB_HOST: feed_db
+      DB_PORT: "5432"
+      DB_USER: ${DB_FEED_USER}
+      DB_PASSWORD: ${DB_FEED_PASSWORD}
+      DB_NAME: ${DB_FEED_NAME}
+    expose:
+      - 8083
+    networks:
+      - wave-connect
+    depends_on:
+      feed_db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  feed_db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_FEED_USER}
+      POSTGRES_PASSWORD: ${DB_FEED_PASSWORD}
+      POSTGRES_DB: ${DB_FEED_NAME}
+    expose:
+      - 5432
+    networks:
+      - wave-connect
+    volumes:
+      - postgres_data_feed:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"${DB_FEED_USER}\" -d \"${DB_FEED_NAME}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
 
 networks:
   wave-connect:
     driver: bridge
 
 volumes:
-  postgres_data_chat:
   postgres_data_auth:
+  postgres_data_feed:
+  postgres_data_chat:

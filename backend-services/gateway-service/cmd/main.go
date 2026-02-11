@@ -18,6 +18,7 @@ func main() {
 	service := service.NewService(
 		cfg.AuthServiceURL,
 		cfg.ChatServiceURL,
+		cfg.FeedServiceURL,
 		cfg.JWTSecret,
 	)
 

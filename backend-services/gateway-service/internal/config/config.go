@@ -9,6 +9,7 @@ import (
 type Config struct {
 	AuthServiceURL string
 	ChatServiceURL string
+	FeedServiceURL string
 	JWTSecret      string
 }
 
@@ -37,6 +38,7 @@ func Load() *Config {
 	cfg := &Config{
 		AuthServiceURL: v.GetString("AUTH_SERVICE_URL"),
 		ChatServiceURL: v.GetString("CHAT_SERVICE_URL"),
+		FeedServiceURL: v.GetString("FEED_SERVICE_URL"),
 		JWTSecret:      v.GetString("JWT_SECRET"),
 	}
 
