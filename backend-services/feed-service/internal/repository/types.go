@@ -4,10 +4,13 @@ import (
 	"time"
 )
 
-type Message struct {
-	ID       string    `json:"id"`
+type Publication struct {
+	PostID   string    `json:"post_id"`
 	Text     string    `json:"text"`
-	Sender   string    `json:"sender"`
-	Receiver string    `json:"receiver"`
+	UserID   string    `json:"user_id"`
 	TimeSent time.Time `json:"timeSent"`
+}
+
+type PublicationRequest struct {
+	Text     string    `json:"text"`
 }

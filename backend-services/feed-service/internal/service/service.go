@@ -15,21 +15,20 @@ func NewService(repo *repository.Repository) *Service {
 	}
 }
 
-func (s *Service) CreateMessage(ctx context.Context, msg repository.Message) (repository.Message, error) {
-	return s.Repo.CreateMessage(ctx, msg)
+func (s *Service) CreatePublication(ctx context.Context, msg repository.PublicationRequest) (repository.Publication, error) {
+	return s.Repo.CreatePublication(ctx, msg)
 }
 
-func (s *Service) GetMessage(ctx context.Context, id string) (repository.Message, error) {
-	return s.Repo.GetMessage(ctx, id)
+func (s *Service) GetPublication(ctx context.Context, id string) (repository.PublicationRequest, error) {
+	return s.Repo.GetPublication(ctx, id)
+}
+
+func (s *Service) UpdatePublication(ctx context.Context, id string, text string) error {
+	return s.Repo.UpdatePublication(ctx, id, text)
 
 }
 
-func (s *Service) UpdateMessage(ctx context.Context, id string, text string) error {
-	return s.Repo.UpdateMessage(ctx, id, text)
-
-}
-
-func (s *Service) DeleteMessage(ctx context.Context, id string) error {
-	return s.Repo.DeleteMessage(ctx, id)
+func (s *Service) DeletePublication(ctx context.Context, id string) error {
+	return s.Repo.DeletePublication(ctx, id)
 
 }

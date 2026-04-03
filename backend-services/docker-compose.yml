@@ -10,6 +10,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
       - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
       - CHAT_SERVICE_URL=${CHAT_SERVICE_URL}
+      - FEED_SERVICE_URL=${FEED_SERVICE_URL}
     ports:
       - "8080:8080"
     networks:
@@ -17,6 +18,7 @@ services:
     depends_on:
       - auth
       - chat
+      - feed
     restart: unless-stopped
 
   auth:
@@ -32,6 +34,8 @@ services:
       JWT_SECRET: ${JWT_SECRET}
     expose:
       - 8081
+    ports:
+      - "8081:8081"
     networks:
       - wave-connect
     depends_on:

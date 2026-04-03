@@ -29,8 +29,8 @@ func Load() *Config {
 	// Set defaults
 	v.SetDefault("DB_HOST", "db")
 	v.SetDefault("DB_PORT", "5432")
-	v.SetDefault("DB_NAME", "chat_db")
-	v.SetDefault("DB_USER", "chat_user")
+	v.SetDefault("DB_NAME", "feed_db")
+	v.SetDefault("DB_USER", "feed_user")
 	v.SetDefault("DB_PASSWORD", "password")
 	v.SetDefault("DB_SSLMODE", "disable")
 
