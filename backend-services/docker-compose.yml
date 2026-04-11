@@ -140,7 +140,45 @@ services:
   #     timeout: 5s
   #     retries: 10
   #     start_period: 10s
+  profile:
+    build:
+      context: ./profile-service
+      dockerfile: Dockerfile
+    environment:
+      DB_HOST: profile_db
+      DB_PORT: "5432"
+      DB_USER: ${DB_PROFILE_USER}
+      DB_PASSWORD: ${DB_PROFILE_PASSWORD}
+      DB_NAME: ${DB_PROFILE_NAME}
+    expose:
+      - 8084
+    networks:
+      - wave-connect
+    depends_on:
+      profile_db:
+        condition: service_healthy
+    restart: unless-stopped
 
+  profile_db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_FEED_USER}
+      POSTGRES_PASSWORD: ${DB_FEED_PASSWORD}
+      POSTGRES_DB: ${DB_FEED_NAME}
+    expose:
+      - 5432
+    networks:
+      - wave-connect
+    volumes:
+      - postgres_data_profile:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"${DB_PROFILE_USER}\" -d \"${DB_PROFILE_NAME}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+    
 
 networks:
   wave-connect:
@@ -150,3 +188,4 @@ volumes:
   postgres_data_auth:
   postgres_data_feed:
   postgres_data_chat:
+  postgres_data_profile:

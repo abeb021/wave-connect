@@ -50,10 +50,10 @@ func main() {
 	//routing
 	r := http.NewServeMux()
 
-	r.HandleFunc("POST /api/message", h.CreateMessage)
-	r.HandleFunc("GET /api/message/{id}", h.GetMessage)
-	r.HandleFunc("PUT /api/message/{id}", h.UpdateMessage)
-	r.HandleFunc("DELETE /api/message/{id}", h.DeleteMessage)
+	r.HandleFunc("POST /api/message", h.CreateProfile)
+	r.HandleFunc("GET /api/message/{id}", h.GetProfile)
+	r.HandleFunc("PUT /api/message/{id}", h.UpdateProfile)
+	r.HandleFunc("DELETE /api/message/{id}", h.DeleteProfile)
 
 	GlobalMiddleware := middleware.Chain(
 		middleware.LoggingMiddleware,
@@ -63,7 +63,7 @@ func main() {
 	handler := GlobalMiddleware(r)
 
 	server := http.Server{
-		Addr:    ":8082",
+		Addr:    ":8084",
 		Handler: handler,
 	}
 
