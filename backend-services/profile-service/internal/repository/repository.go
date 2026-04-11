@@ -25,15 +25,14 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 		DB: db,
 	}
 }
-func (ps *Repository) CreatePublication(ctx context.Context, msg PublicationRequest) (Publication, error) {
+func (ps *Repository) CreateProfile(ctx context.Context, profReq CreateProfileRequest) (Profile, error) {
 	
-	msg.PostID = uuid.New().String()
 	row := ps.DB.QueryRow(
 		ctx,
 		`INSERT INTO publications (id, text, sender, receiver)
 	 	 VALUES ($1, $2, $3, $4)
 	 	 RETURNING time_sent`,
-		msg.PostID, msg.Text, msg.Sender, msg.Receiver,
+		uuid.New().String(), msg.Text, msg.Sender, msg.Receiver,
 	)
 
 	if err := row.Scan(&msg.TimeSent); err != nil {

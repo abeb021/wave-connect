@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"chat-service/internal/repository"
-	"chat-service/internal/service"
+	"profile-service/internal/repository"
+	"profile-service/internal/service"
 	"encoding/json"
 	"net/http"
 
@@ -17,22 +17,27 @@ func NewHandler(srv *service.Service) *Handler {
 	return &Handler{Srv: srv}
 }
 
-func (h *Handler) CreatePublication(w http.ResponseWriter, r *http.Request) {
-	var pubReq repository.PublicationRequest
-	err := json.NewDecoder(r.Body).Decode(&pubReq)
+func (h *Handler)RegisterRoutes(r *http.ServeMux) {
+	r.HandleFunc("POST /api/profile", h.CreateProfile)
+}
+
+
+func (h *Handler) CreateProfile(w http.ResponseWriter, r *http.Request) {
+	var profReq repository.CreateProfileRequest
+	err := json.NewDecoder(r.Body).Decode(&profReq)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	pub, err := h.Srv.CreatePublication(r.Context(), pubReq)
+	prof, err := h.Srv.CreateProfile(r.Context(), msg)
 	if err != nil {
 		http.Error(w, "failed to create message", http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(pub)
+	json.NewEncoder(w).Encode(prof)
 }
 
 func (h *Handler) GetMessage(w http.ResponseWriter, r *http.Request) {

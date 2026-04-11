@@ -18,7 +18,7 @@ services:
     depends_on:
       - auth
       - chat
-      - feed
+      #- feed
     restart: unless-stopped
 
   auth:
@@ -102,44 +102,44 @@ services:
       retries: 10
       start_period: 10s
 
-  feed:
-    build:
-      context: ./feed-service
-      dockerfile: Dockerfile
-    environment:
-      DB_HOST: feed_db
-      DB_PORT: "5432"
-      DB_USER: ${DB_FEED_USER}
-      DB_PASSWORD: ${DB_FEED_PASSWORD}
-      DB_NAME: ${DB_FEED_NAME}
-    expose:
-      - 8083
-    networks:
-      - wave-connect
-    depends_on:
-      feed_db:
-        condition: service_healthy
-    restart: unless-stopped
+  # feed:
+  #   build:
+  #     context: ./feed-service
+  #     dockerfile: Dockerfile
+  #   environment:
+  #     DB_HOST: feed_db
+  #     DB_PORT: "5432"
+  #     DB_USER: ${DB_FEED_USER}
+  #     DB_PASSWORD: ${DB_FEED_PASSWORD}
+  #     DB_NAME: ${DB_FEED_NAME}
+  #   expose:
+  #     - 8083
+  #   networks:
+  #     - wave-connect
+  #   depends_on:
+  #     feed_db:
+  #       condition: service_healthy
+  #   restart: unless-stopped
 
-  feed_db:
-    image: postgres:16-alpine
-    restart: always
-    environment:
-      POSTGRES_USER: ${DB_FEED_USER}
-      POSTGRES_PASSWORD: ${DB_FEED_PASSWORD}
-      POSTGRES_DB: ${DB_FEED_NAME}
-    expose:
-      - 5432
-    networks:
-      - wave-connect
-    volumes:
-      - postgres_data_feed:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U \"${DB_FEED_USER}\" -d \"${DB_FEED_NAME}\""]
-      interval: 5s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
+  # feed_db:
+  #   image: postgres:16-alpine
+  #   restart: always
+  #   environment:
+  #     POSTGRES_USER: ${DB_FEED_USER}
+  #     POSTGRES_PASSWORD: ${DB_FEED_PASSWORD}
+  #     POSTGRES_DB: ${DB_FEED_NAME}
+  #   expose:
+  #     - 5432
+  #   networks:
+  #     - wave-connect
+  #   volumes:
+  #     - postgres_data_feed:/var/lib/postgresql/data
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "pg_isready -U \"${DB_FEED_USER}\" -d \"${DB_FEED_NAME}\""]
+  #     interval: 5s
+  #     timeout: 5s
+  #     retries: 10
+  #     start_period: 10s
 
 
 networks:
