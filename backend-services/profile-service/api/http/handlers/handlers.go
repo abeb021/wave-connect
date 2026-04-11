@@ -58,23 +58,25 @@ func (h *Handler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(prof)
 }
 
-func (h *Handler) UpdateMessage(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
-	var msg repository.Message
-	if decodeErr := json.NewDecoder(r.Body).Decode(&msg); decodeErr != nil {
+	var prof repository.Profile
+	if decodeErr := json.NewDecoder(r.Body).Decode(&prof); decodeErr != nil {
 		http.Error(w, decodeErr.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err := h.Srv.UpdateMessage(r.Context(), id, msg.Text)
+	prof.UserID = id
+
+	err := h.Srv.UpdateProfile(r.Context(), &prof)
 
 	if err != nil {
-		if err.Error() == "ID not found" {
-			http.Error(w, "ID not found", http.StatusNotFound)
+		if err.Error() == "ID/Username not found" {
+			http.Error(w, "ID/Username not found", http.StatusNotFound)
 			return
 		}
-		http.Error(w, "failed to update message", http.StatusInternalServerError)
+		http.Error(w, "failed to update profile", http.StatusInternalServerError)
 		return
 	}
 
@@ -92,7 +94,7 @@ func (h *Handler) DeleteMessage(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "ID not found", http.StatusNotFound)
 			return
 		}
-		http.Error(w, "failed to delete message", http.StatusInternalServerError)
+		http.Error(w, "failed to delete profile", http.StatusInternalServerError)
 		return
 	}
 

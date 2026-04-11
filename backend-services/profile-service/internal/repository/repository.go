@@ -28,7 +28,7 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 func (ps *Repository) CreateProfile(ctx context.Context, profReq *CreateProfileRequest) (*Profile, error) {
 	prof := Profile{
 		Username: profReq.Username,
-		UserID: uuid.New().String(),
+		UserID:   uuid.New().String(),
 	}
 	row := ps.DB.QueryRow(
 		ctx,
@@ -37,7 +37,6 @@ func (ps *Repository) CreateProfile(ctx context.Context, profReq *CreateProfileR
 	 	 RETURNING time_created`,
 		prof.UserID, prof.Username,
 	)
-
 
 	if err := row.Scan(&prof.TimeCreated); err != nil {
 		return nil, err
@@ -65,27 +64,27 @@ func (ps *Repository) GetProfile(ctx context.Context, user_id string) (*Profile,
 	return &prof, nil
 }
 
-func (ps *Repository) UpdateMessage(ctx context.Context, id string, text string) error {
-
+func (ps *Repository) UpdateProfile(ctx context.Context, prof *Profile) error {
 	ct, err := ps.DB.Exec(
 		ctx,
-		`UPDATE messages
-		 SET text = $1
-		 WHERE id = $2`,
-		text, id,
+		`UPDATE profiles
+		 SET username = $1
+		 WHERE id = $2
+		 `,
+		prof.Username, prof.UserID,
 	)
 
 	if err != nil {
 		return err
 	}
 	if ct.RowsAffected() == 0 {
-		return errors.New("ID not found")
+		return errors.New("ID/Username not found")
 	}
 
 	return nil
 }
 
-func (ps *Repository) DeleteMessage(ctx context.Context, id string) error {
+func (ps *Repository) DeleteProfile(ctx context.Context, id string) error {
 	ct, err := ps.DB.Exec(
 		ctx,
 		`DELETE FROM messages 

@@ -23,11 +23,11 @@ func (s *Service) GetProfile(ctx context.Context, id string) (*repository.Profil
 	return s.Repo.GetProfile(ctx, id)
 }
 
-func (s *Service) UpdatePublication(ctx context.Context, id string, text string) error {
-	return s.Repo.UpdatePublication(ctx, id, text)
+func (s *Service) UpdateProfile(ctx context.Context, prof *repository.Profile) error {
+	return s.Repo.UpdateProfile(ctx, prof)
 }
 
-func (s *Service) DeletePublication(ctx context.Context, id string) error {
-	return s.Repo.DeletePublication(ctx, id)
+func (s *Service) DeleteProfile(ctx context.Context, id string) error {
+	return s.Repo.DeleteProfile(ctx, id)
 
 }

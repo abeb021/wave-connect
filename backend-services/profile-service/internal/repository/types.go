@@ -13,3 +13,8 @@ type Profile struct {
 type CreateProfileRequest struct {
 	Username string `json:"text"`
 }
+
+type ProfileRequest struct {
+	Username string `json:"text"`
+	UserID   string `json:"user_id"`
+}
