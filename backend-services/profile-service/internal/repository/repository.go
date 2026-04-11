@@ -25,21 +25,25 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 		DB: db,
 	}
 }
-func (ps *Repository) CreateProfile(ctx context.Context, profReq CreateProfileRequest) (Profile, error) {
-	
+func (ps *Repository) CreateProfile(ctx context.Context, profReq *CreateProfileRequest) (*Profile, error) {
+	prof := Profile{
+		Username: profReq.Username,
+		UserID: uuid.New().String(),
+	}
 	row := ps.DB.QueryRow(
 		ctx,
-		`INSERT INTO publications (id, text, sender, receiver)
-	 	 VALUES ($1, $2, $3, $4)
-	 	 RETURNING time_sent`,
-		uuid.New().String(), msg.Text, msg.Sender, msg.Receiver,
+		`INSERT INTO profiles (user_id, username)
+	 	 VALUES ($1, $2)
+	 	 RETURNING time_created`,
+		prof.UserID, prof.Username,
 	)
 
-	if err := row.Scan(&msg.TimeSent); err != nil {
-		return Message{}, err
+
+	if err := row.Scan(&prof.TimeCreated); err != nil {
+		return nil, err
 	}
 
-	return msg, nil
+	return &prof, nil
 }
 
 func (ps *Repository) GetMessage(ctx context.Context, id string) (Message, error) {

@@ -15,7 +15,7 @@ func NewService(repo *repository.Repository) *Service {
 	}
 }
 
-func (s *Service) CreateProfile(ctx context.Context, profReq repository.CreateProfileRequest) (repository.Profile, error) {
+func (s *Service) CreateProfile(ctx context.Context, profReq *repository.CreateProfileRequest) (repository.Profile, error) {
 	return s.Repo.CreateProfile(ctx, profReq)
 }
 

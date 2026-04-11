@@ -30,7 +30,7 @@ func (h *Handler) CreateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	prof, err := h.Srv.CreateProfile(r.Context(), msg)
+	prof, err := h.Srv.CreateProfile(r.Context(), &profReq)
 	if err != nil {
 		http.Error(w, "failed to create message", http.StatusInternalServerError)
 		return
