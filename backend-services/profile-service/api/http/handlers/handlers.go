@@ -32,7 +32,7 @@ func (h *Handler) CreateProfile(w http.ResponseWriter, r *http.Request) {
 
 	prof, err := h.Srv.CreateProfile(r.Context(), &profReq)
 	if err != nil {
-		http.Error(w, "failed to create message", http.StatusInternalServerError)
+		http.Error(w, "failed to create profile", http.StatusInternalServerError)
 		return
 	}
 
@@ -40,22 +40,22 @@ func (h *Handler) CreateProfile(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(prof)
 }
 
-func (h *Handler) GetMessage(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
-	msg, err := h.Srv.GetMessage(r.Context(), id)
+	prof, err := h.Srv.GetProfile(r.Context(), id)
 
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			http.Error(w, "ID not found", http.StatusNotFound)
 			return
 		}
-		http.Error(w, "failed to get message", http.StatusInternalServerError)
+		http.Error(w, "failed to get profile", http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(msg)
+	json.NewEncoder(w).Encode(prof)
 }
 
 func (h *Handler) UpdateMessage(w http.ResponseWriter, r *http.Request) {

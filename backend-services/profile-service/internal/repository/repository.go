@@ -46,23 +46,23 @@ func (ps *Repository) CreateProfile(ctx context.Context, profReq *CreateProfileR
 	return &prof, nil
 }
 
-func (ps *Repository) GetMessage(ctx context.Context, id string) (Message, error) {
+func (ps *Repository) GetProfile(ctx context.Context, user_id string) (*Profile, error) {
 
-	var msg Message
+	var prof Profile
 
 	row := ps.DB.QueryRow(
 		ctx,
-		`SELECT id, text, sender, receiver, time_sent
-		 FROM messages 
+		`SELECT user_id, username, time_created
+		 FROM profiles 
 		 WHERE id = $1`,
-		id)
+		user_id)
 
-	err := row.Scan(&msg.ID, &msg.Text, &msg.Sender, &msg.Receiver, &msg.TimeSent)
+	err := row.Scan(&prof.UserID, &prof.Username, &prof.TimeCreated)
 	if err != nil {
-		return Message{}, err
+		return nil, err
 	}
 
-	return msg, nil
+	return &prof, nil
 }
 
 func (ps *Repository) UpdateMessage(ctx context.Context, id string, text string) error {
