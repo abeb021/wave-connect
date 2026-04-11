@@ -28,14 +28,14 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 func (ps *Repository) CreateProfile(ctx context.Context, profReq *CreateProfileRequest) (*Profile, error) {
 	prof := Profile{
 		Username: profReq.Username,
-		UserID:   uuid.New().String(),
+		ID:   uuid.New().String(),
 	}
 	row := ps.DB.QueryRow(
 		ctx,
-		`INSERT INTO profiles (user_id, username)
+		`INSERT INTO profiles (id, username)
 	 	 VALUES ($1, $2)
 	 	 RETURNING time_created`,
-		prof.UserID, prof.Username,
+		prof.ID, prof.Username,
 	)
 
 	if err := row.Scan(&prof.TimeCreated); err != nil {
@@ -51,12 +51,12 @@ func (ps *Repository) GetProfile(ctx context.Context, user_id string) (*Profile,
 
 	row := ps.DB.QueryRow(
 		ctx,
-		`SELECT user_id, username, time_created
+		`SELECT id, username, time_created
 		 FROM profiles 
 		 WHERE id = $1`,
 		user_id)
 
-	err := row.Scan(&prof.UserID, &prof.Username, &prof.TimeCreated)
+	err := row.Scan(&prof.ID, &prof.Username, &prof.TimeCreated)
 	if err != nil {
 		return nil, err
 	}
@@ -71,7 +71,7 @@ func (ps *Repository) UpdateProfile(ctx context.Context, prof *Profile) error {
 		 SET username = $1
 		 WHERE id = $2
 		 `,
-		prof.Username, prof.UserID,
+		prof.Username, prof.ID,
 	)
 
 	if err != nil {
@@ -87,7 +87,7 @@ func (ps *Repository) UpdateProfile(ctx context.Context, prof *Profile) error {
 func (ps *Repository) DeleteProfile(ctx context.Context, id string) error {
 	ct, err := ps.DB.Exec(
 		ctx,
-		`DELETE FROM messages 
+		`DELETE FROM profiles 
 		 WHERE id=$1`,
 		id,
 	)

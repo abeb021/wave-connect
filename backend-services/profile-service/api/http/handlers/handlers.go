@@ -67,7 +67,7 @@ func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	prof.UserID = id
+	prof.ID = id
 
 	err := h.Srv.UpdateProfile(r.Context(), &prof)
 
@@ -84,10 +84,10 @@ func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (h *Handler) DeleteMessage(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) DeleteProfile(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
-	err := h.Srv.DeleteMessage(r.Context(), id)
+	err := h.Srv.DeleteProfile(r.Context(), id)
 
 	if err != nil {
 		if err.Error() == "ID not found" {

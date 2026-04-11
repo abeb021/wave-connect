@@ -6,15 +6,15 @@ import (
 
 type Profile struct {
 	Username    string    `json:"username"`
-	UserID      string    `json:"user_id"`
+	ID      string    `json:"id"`
 	TimeCreated time.Time `json:"time_created"`
 }
 
 type CreateProfileRequest struct {
-	Username string `json:"text"`
+	Username string `json:"username"`
 }
 
 type ProfileRequest struct {
-	Username string `json:"text"`
-	UserID   string `json:"user_id"`
+	Username string `json:"username"`
+	ID   string `json:"id"`
 }
