@@ -43,12 +43,11 @@ func Load() *Config {
 	cfg := &Config{
 		DBHost:     v.GetString("DB_HOST"),
 		DBPort:     v.GetString("DB_PORT"),
-		DBUser:     v.GetString("DB_USER"),
-		DBPassword: v.GetString("DB_PASSWORD"),
-		DBName:     v.GetString("DB_NAME"),
+		DBUser:     v.GetString("DB_PROFILE_USER"),
+		DBPassword: v.GetString("DB_PROFILE_PASSWORD"),
+		DBName:     v.GetString("DB_PROFILE_NAME"),
 		DBSSLMode:  v.GetString("DB_SSLMODE"),
 	}
-
 	return cfg
 }
 

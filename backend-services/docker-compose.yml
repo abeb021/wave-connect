@@ -11,6 +11,7 @@ services:
       - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
       - CHAT_SERVICE_URL=${CHAT_SERVICE_URL}
       - FEED_SERVICE_URL=${FEED_SERVICE_URL}
+      - PROFILE_SERVICE_URL=${PROFILE_SERVICE_URL}
     ports:
       - "8080:8080"
     networks:
@@ -163,9 +164,9 @@ services:
     image: postgres:16-alpine
     restart: always
     environment:
-      POSTGRES_USER: ${DB_FEED_USER}
-      POSTGRES_PASSWORD: ${DB_FEED_PASSWORD}
-      POSTGRES_DB: ${DB_FEED_NAME}
+      POSTGRES_USER: ${DB_PROFILE_USER}
+      POSTGRES_PASSWORD: ${DB_PROFILE_PASSWORD}
+      POSTGRES_DB: ${DB_PROFILE_NAME}
     expose:
       - 5432
     networks:
@@ -186,6 +187,6 @@ networks:
 
 volumes:
   postgres_data_auth:
-  postgres_data_feed:
+ # postgres_data_feed:
   postgres_data_chat:
   postgres_data_profile:

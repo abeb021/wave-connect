@@ -46,7 +46,7 @@ func Load() *Config {
 		JWTSecret:  v.GetString("JWT_SECRET"),
 		DBHost:     v.GetString("DB_HOST"),
 		DBPort:     v.GetString("DB_PORT"),
-		DBUser:     v.GetString("DB_USER"),
+		DBUser:     v.GetString("DB_AUTH_USER"),
 		DBPassword: v.GetString("DB_PASSWORD"),
 		DBName:     v.GetString("DB_NAME"),
 		DBSSLMode:  v.GetString("DB_SSLMODE"),

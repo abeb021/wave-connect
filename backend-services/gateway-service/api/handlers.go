@@ -12,5 +12,6 @@ func RegisterRoutes(r *http.ServeMux, srv *service.Service) {
 
 	r.Handle("/api/auth", middleware.JWTMiddleware(srv.JWTSecret, srv.AuthURL, srv.AuthProxy()))
 	r.Handle("/api/feed", middleware.JWTMiddleware(srv.JWTSecret, srv.AuthURL, srv.FeedProxy()))
+	r.Handle("/api/profile", middleware.JWTMiddleware(srv.JWTSecret, srv.AuthURL, srv.ProfileProxy()))
 	//r.Handle("/api/message", middleware.JWTMiddleware(srv.JWTSecret, srv.AuthURL, srv.ChatProxy()))
 }
