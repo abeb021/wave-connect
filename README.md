@@ -43,9 +43,9 @@ flowchart TB
 
   %% Domain services
   G -->|proxy| AUTH[Auth 8081]
-  G -->|proxy (JWT required)| FEED[Feed 8083]
-  G -->|proxy (JWT required)| PROFILE[Profile 8084]
-  G -. proxy route currently commented out .-> CHAT[Chat 8082]
+  G -->|proxy JWT required| FEED[Feed 8083]
+  G -->|proxy JWT required| PROFILE[Profile 8084]
+  G -.-> CHAT[Chat 8082]
 
   %% Auth service internals
   subgraph AuthService["Auth Service"]
