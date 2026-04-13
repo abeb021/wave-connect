@@ -1,10 +1,11 @@
 package handlers
 
 import (
-	"profile-service/internal/repository"
-	"profile-service/internal/service"
 	"encoding/json"
 	"net/http"
+	"profile-service/internal/repository"
+	"profile-service/internal/service"
+	"profile-service/usecases"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -32,6 +33,10 @@ func (h *Handler) CreateProfile(w http.ResponseWriter, r *http.Request) {
 
 	prof, err := h.Srv.CreateProfile(r.Context(), &profReq)
 	if err != nil {
+		if err == usecases.ErrUserTaken {
+			http.Error(w, err.Error(), http.StatusConflict)
+			return
+		}
 		http.Error(w, "failed to create profile", http.StatusInternalServerError)
 		return
 	}

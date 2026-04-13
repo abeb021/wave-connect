@@ -3,6 +3,9 @@ package repository
 import (
 	"context"
 	"errors"
+	"strings"
+
+	"profile-service/usecases"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -28,7 +31,7 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 func (ps *Repository) CreateProfile(ctx context.Context, profReq *CreateProfileRequest) (*Profile, error) {
 	prof := Profile{
 		Username: profReq.Username,
-		ID:   uuid.New().String(),
+		ID:       uuid.New().String(),
 	}
 	row := ps.DB.QueryRow(
 		ctx,
@@ -39,6 +42,9 @@ func (ps *Repository) CreateProfile(ctx context.Context, profReq *CreateProfileR
 	)
 
 	if err := row.Scan(&prof.TimeCreated); err != nil {
+		if strings.Contains(err.Error(), "duplicate") {
+			return nil, usecases.ErrUserTaken
+		}
 		return nil, err
 	}
 
