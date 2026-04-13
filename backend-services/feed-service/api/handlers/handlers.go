@@ -19,15 +19,18 @@ func NewHandler(srv *service.Service) *Handler {
 
 func (h *Handler) CreatePublication(w http.ResponseWriter, r *http.Request) {
 	var pubReq repository.PublicationRequest
-	err := json.NewDecoder(r.Body).Decode(&pubReq)
+	err := json.NewDecoder(r.Body).Decode(&pubReq.Text)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
+	pubReq.UserID = r.Header.Get("X-User-ID")
+
 	pub, err := h.Srv.CreatePublication(r.Context(), pubReq)
+
 	if err != nil {
-		http.Error(w, "failed to create message", http.StatusInternalServerError)
+		http.Error(w, "failed to create publication", http.StatusInternalServerError)
 		return
 	}
 
@@ -35,41 +38,41 @@ func (h *Handler) CreatePublication(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(pub)
 }
 
-func (h *Handler) GetMessage(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetPublication(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
-	msg, err := h.Srv.GetMessage(r.Context(), id)
+	pub, err := h.Srv.GetPublication(r.Context(), id)
 
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			http.Error(w, "ID not found", http.StatusNotFound)
 			return
 		}
-		http.Error(w, "failed to get message", http.StatusInternalServerError)
+		http.Error(w, "failed to get publication", http.StatusInternalServerError)
 		return
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(msg)
+	json.NewEncoder(w).Encode(pub)
 }
 
-func (h *Handler) UpdateMessage(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) UpdatePublication(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
-	var msg repository.Message
-	if decodeErr := json.NewDecoder(r.Body).Decode(&msg); decodeErr != nil {
+	var pub repository.Publication
+	if decodeErr := json.NewDecoder(r.Body).Decode(&pub); decodeErr != nil {
 		http.Error(w, decodeErr.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err := h.Srv.UpdateMessage(r.Context(), id, msg.Text)
+	err := h.Srv.UpdatePublication(r.Context(), id, pub.Text)
 
 	if err != nil {
 		if err.Error() == "ID not found" {
 			http.Error(w, "ID not found", http.StatusNotFound)
 			return
 		}
-		http.Error(w, "failed to update message", http.StatusInternalServerError)
+		http.Error(w, "failed to update publication", http.StatusInternalServerError)
 		return
 	}
 
@@ -77,17 +80,17 @@ func (h *Handler) UpdateMessage(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func (h *Handler) DeleteMessage(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) DeletePublication(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
-	err := h.Srv.DeleteMessage(r.Context(), id)
+	err := h.Srv.DeletePublication(r.Context(), id)
 
 	if err != nil {
 		if err.Error() == "ID not found" {
 			http.Error(w, "ID not found", http.StatusNotFound)
 			return
 		}
-		http.Error(w, "failed to delete message", http.StatusInternalServerError)
+		http.Error(w, "failed to delete publication", http.StatusInternalServerError)
 		return
 	}
 

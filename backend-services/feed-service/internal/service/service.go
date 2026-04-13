@@ -15,11 +15,11 @@ func NewService(repo *repository.Repository) *Service {
 	}
 }
 
-func (s *Service) CreatePublication(ctx context.Context, msg repository.PublicationRequest) (repository.Publication, error) {
-	return s.Repo.CreatePublication(ctx, msg)
+func (s *Service) CreatePublication(ctx context.Context, pubReq repository.PublicationRequest) (*repository.Publication, error) {
+	return s.Repo.CreatePublication(ctx, pubReq)
 }
 
-func (s *Service) GetPublication(ctx context.Context, id string) (repository.PublicationRequest, error) {
+func (s *Service) GetPublication(ctx context.Context, id string) (*repository.Publication, error) {
 	return s.Repo.GetPublication(ctx, id)
 }
 

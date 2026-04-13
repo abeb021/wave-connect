@@ -5,12 +5,13 @@ import (
 )
 
 type Publication struct {
-	PostID   string    `json:"post_id"`
-	Text     string    `json:"text"`
-	UserID   string    `json:"user_id"`
-	TimeSent time.Time `json:"timeSent"`
+	ID          string    `json:"id"`
+	Text        string    `json:"text"`
+	UserID      string    `json:"user_id"`
+	TimeCreated time.Time `json:"time_created"`
 }
 
 type PublicationRequest struct {
-	Text     string    `json:"text"`
+	Text   string `json:"text"`
+	UserID string `json:"user_id"`
 }

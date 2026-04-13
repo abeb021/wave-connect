@@ -50,10 +50,10 @@ func main() {
 	//routing
 	r := http.NewServeMux()
 
-	r.HandleFunc("POST /api/feed", h.CreateMessage)
-	r.HandleFunc("GET /api/feed/{id}", h.GetMessage)
-	r.HandleFunc("PUT /api/feed/{id}", h.UpdateMessage)
-	r.HandleFunc("DELETE /api/feed/{id}", h.DeleteMessage)
+	r.HandleFunc("POST /api/feed", h.CreatePublication)
+	r.HandleFunc("GET /api/feed/{id}", h.GetPublication)
+	r.HandleFunc("PUT /api/feed/{id}", h.UpdatePublication)
+	r.HandleFunc("DELETE /api/feed/{id}", h.DeletePublication)
 
 	GlobalMiddleware := middleware.Chain(
 		middleware.LoggingMiddleware,

@@ -25,48 +25,50 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 		DB: db,
 	}
 }
-func (ps *Repository) CreatePublication(ctx context.Context, msg PublicationRequest) (Publication, error) {
-	
-	msg.PostID = uuid.New().String()
+func (ps *Repository) CreatePublication(ctx context.Context, pubReq PublicationRequest) (*Publication, error) {
+	pub := Publication{
+		ID: uuid.New().String(),
+		Text: pubReq.Text,
+		UserID: pubReq.UserID,
+	}
 	row := ps.DB.QueryRow(
 		ctx,
-		`INSERT INTO publications (id, text, sender, receiver)
-	 	 VALUES ($1, $2, $3, $4)
+		`INSERT INTO publications (id, text, user_id)
+	 	 VALUES ($1, $2, $3)
 	 	 RETURNING time_sent`,
-		msg.PostID, msg.Text, msg.Sender, msg.Receiver,
+		pub.ID, pub.Text, pub.UserID,
 	)
 
-	if err := row.Scan(&msg.TimeSent); err != nil {
-		return Message{}, err
+	if err := row.Scan(&pub.TimeCreated); err != nil {
+		return nil, err
 	}
 
-	return msg, nil
+	return &pub, nil
 }
 
-func (ps *Repository) GetMessage(ctx context.Context, id string) (Message, error) {
-
-	var msg Message
+func (ps *Repository) GetPublication(ctx context.Context, id string) (*Publication, error) {
+	var pub Publication
 
 	row := ps.DB.QueryRow(
 		ctx,
-		`SELECT id, text, sender, receiver, time_sent
-		 FROM messages 
+		`SELECT id, text, user_id, time_created
+		 FROM publications
 		 WHERE id = $1`,
 		id)
 
-	err := row.Scan(&msg.ID, &msg.Text, &msg.Sender, &msg.Receiver, &msg.TimeSent)
+	err := row.Scan(&pub.ID, &pub.Text, &pub.UserID, &pub.TimeCreated)
 	if err != nil {
-		return Message{}, err
+		return nil, err
 	}
 
-	return msg, nil
+	return &pub, nil
 }
 
-func (ps *Repository) UpdateMessage(ctx context.Context, id string, text string) error {
+func (ps *Repository) UpdatePublication(ctx context.Context, id string, text string) error {
 
 	ct, err := ps.DB.Exec(
 		ctx,
-		`UPDATE messages
+		`UPDATE publications
 		 SET text = $1
 		 WHERE id = $2`,
 		text, id,
@@ -82,10 +84,10 @@ func (ps *Repository) UpdateMessage(ctx context.Context, id string, text string)
 	return nil
 }
 
-func (ps *Repository) DeleteMessage(ctx context.Context, id string) error {
+func (ps *Repository) DeletePublication(ctx context.Context, id string) error {
 	ct, err := ps.DB.Exec(
 		ctx,
-		`DELETE FROM messages 
+		`DELETE FROM publications 
 		 WHERE id=$1`,
 		id,
 	)
