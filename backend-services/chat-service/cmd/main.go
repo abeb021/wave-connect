@@ -50,7 +50,7 @@ func main() {
 	//routing
 	r := http.NewServeMux()
 
-	r.HandleFunc("POST /api/message", h.CreateMessage)
+	r.HandleFunc("POST /api/message/", h.CreateMessage)
 	r.HandleFunc("GET /api/message/{id}", h.GetMessage)
 	r.HandleFunc("PUT /api/message/{id}", h.UpdateMessage)
 	r.HandleFunc("DELETE /api/message/{id}", h.DeleteMessage)

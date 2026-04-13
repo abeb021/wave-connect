@@ -50,7 +50,7 @@ func main() {
 	//routing
 	r := http.NewServeMux()
 
-	r.HandleFunc("POST /api/profile", h.CreateProfile)
+	r.HandleFunc("POST /api/profile/", h.CreateProfile)
 	r.HandleFunc("GET /api/profile/{id}", h.GetProfile)
 	r.HandleFunc("PUT /api/profile/{id}", h.UpdateProfile)
 	r.HandleFunc("DELETE /api/profile/{id}", h.DeleteProfile)

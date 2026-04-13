@@ -19,7 +19,7 @@ func NewHandler(srv *service.Service) *Handler {
 
 func (h *Handler) CreatePublication(w http.ResponseWriter, r *http.Request) {
 	var pubReq repository.PublicationRequest
-	err := json.NewDecoder(r.Body).Decode(&pubReq.Text)
+	err := json.NewDecoder(r.Body).Decode(&pubReq)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

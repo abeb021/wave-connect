@@ -35,7 +35,7 @@ func (ps *Repository) CreatePublication(ctx context.Context, pubReq PublicationR
 		ctx,
 		`INSERT INTO publications (id, text, user_id)
 	 	 VALUES ($1, $2, $3)
-	 	 RETURNING time_sent`,
+	 	 RETURNING time_created`,
 		pub.ID, pub.Text, pub.UserID,
 	)
 
