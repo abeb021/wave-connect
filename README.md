@@ -31,21 +31,21 @@ flowchart TB
   A[Wave Connect]
 
   A --> C[Client]
-  A --> G[Gateway :8080]
+  A --> G[Gateway 8080]
 
   %% Gateway
-  subgraph Gateway["Gateway Service (reverse proxy + JWT middleware)"]
+  subgraph Gateway["Gateway Service"]
     direction TB
-    G --> G1[Route mux (ServeMux)]
+    G --> G1[Route mux - ServeMux]
     G --> G2[JWT middleware]
-    G --> G3[Reverse proxy (httputil)]
+    G --> G3[Reverse proxy - httputil]
   end
 
   %% Domain services
-  G -->|proxy| AUTH[Auth :8081]
-  G -->|proxy (JWT required)| FEED[Feed :8083]
-  G -->|proxy (JWT required)| PROFILE[Profile :8084]
-  G -. proxy route currently commented out .-> CHAT[Chat :8082]
+  G -->|proxy| AUTH[Auth 8081]
+  G -->|proxy (JWT required)| FEED[Feed 8083]
+  G -->|proxy (JWT required)| PROFILE[Profile 8084]
+  G -. proxy route currently commented out .-> CHAT[Chat 8082]
 
   %% Auth service internals
   subgraph AuthService["Auth Service"]
@@ -83,7 +83,7 @@ flowchart TB
   end
 
   %% Auth verification call (middleware)
-  G2 -->|GET /api/auth/{sub}| AUTH
+  G2 -->|GET /api/auth/<sub>| AUTH
 
   %% Client entrypoint
   C -->|HTTP| G
