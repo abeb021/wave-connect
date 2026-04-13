@@ -1,7 +1,7 @@
 package main
 
 import (
-	"gateway-service/api"
+	handlers "gateway-service/api"
 	"gateway-service/api/middleware"
 	"gateway-service/internal/config"
 	"gateway-service/internal/service"
@@ -23,14 +23,14 @@ func main() {
 		cfg.JWTSecret,
 	)
 
-	handler := http.NewServeMux()
+	mux := http.NewServeMux()
 
-	handlers.RegisterRoutes(handler, service)
+	handlers.RegisterRoutes(mux, service)
 
-	middleware.Chain(
+	handler := middleware.Chain(
 		middleware.CorsMiddleware,
 		middleware.LoggingMiddleware,
-	)(handler)
+	)(mux)
 
 	server := http.Server{
 		Addr:    ":8080",

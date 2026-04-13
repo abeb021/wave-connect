@@ -26,13 +26,13 @@ func Load() *Config {
 	v.AddConfigPath(".")
 	v.AutomaticEnv()
 
-	// Set defaults
-	v.SetDefault("DB_HOST", "db")
-	v.SetDefault("DB_PORT", "5432")
-	v.SetDefault("DB_NAME", "profile_db")
-	v.SetDefault("DB_USER", "profile_user")
-	v.SetDefault("DB_PASSWORD", "password")
-	v.SetDefault("DB_SSLMODE", "disable")
+	// // Set defaults
+	// v.SetDefault("DB_HOST", "db")
+	// v.SetDefault("DB_PORT", "5432")
+	// v.SetDefault("DB_NAME", "feed_db")
+	// v.SetDefault("DB_USER", "feed_user")
+	// v.SetDefault("DB_PASSWORD", "password")
+	 v.SetDefault("DB_SSLMODE", "disable")
 
 	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {
@@ -43,11 +43,12 @@ func Load() *Config {
 	cfg := &Config{
 		DBHost:     v.GetString("DB_HOST"),
 		DBPort:     v.GetString("DB_PORT"),
-		DBUser:     v.GetString("DB_PROFILE_USER"),
-		DBPassword: v.GetString("DB_PROFILE_PASSWORD"),
-		DBName:     v.GetString("DB_PROFILE_NAME"),
+		DBUser:     v.GetString("DB_USER"),
+		DBPassword: v.GetString("DB_PASSWORD"),
+		DBName:     v.GetString("DB_NAME"),
 		DBSSLMode:  v.GetString("DB_SSLMODE"),
 	}
+
 	return cfg
 }
 
