@@ -19,7 +19,7 @@ services:
     depends_on:
       - auth
       - chat
-      #- feed
+      - feed
     restart: unless-stopped
 
   auth:

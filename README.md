@@ -16,6 +16,7 @@ Go microservices backend for a small social-style app. It’s composed of an HTT
 
 - **Language**: Go
 - **HTTP**: Go stdlib `net/http` (`http.ServeMux` route patterns)
+- **Style**: straightforward Go services built on stdlib (minimal framework magic)
 - **Gateway proxy**: Go stdlib `net/http/httputil` reverse proxy
 - **Auth**: JWT (`github.com/golang-jwt/jwt/v5`), password hashing (`golang.org/x/crypto`)
 - **DB**: Postgres 16 (Docker), `pgx` (`github.com/jackc/pgx/v5`)
@@ -87,6 +88,15 @@ flowchart TB
   %% Client entrypoint
   C -->|HTTP| G
 ```
+
+## Backend internal architecture (per service)
+
+Each domain service follows a simple separation of concerns:
+
+- **API layer**: HTTP handlers + (service-specific) middleware under `api/`
+- **Business logic**: service layer under `internal/` (or similar)
+- **Data access**: repository/data layer under `internal/` (Postgres via `pgx`)
+- **Schema management**: SQL migrations under `migrations/`
 
 ## Auth flow (gateway + JWT)
 
@@ -236,5 +246,6 @@ curl -i -X POST http://localhost:8080/api/auth/login \
   -d '{"username":"alice","email":"alice@example.com","password":"password"}'
 ```
 
-## Known sharp edges (from current repo state)
+## TODO
 
+- **Chat over WebSockets**: add a WS endpoint (gateway + chat service) for real-time messaging and typing/read receipts
