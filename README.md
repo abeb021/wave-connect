@@ -28,10 +28,7 @@ Go microservices backend for a small social-style app. It’s composed of an HTT
 
 ```mermaid
 flowchart TB
-  A[Wave Connect]
-
-  A --> C[Client]
-  A --> G[Gateway 8080]
+  C[Client]
 
   %% Gateway
   subgraph Gateway["Gateway Service"]
@@ -54,7 +51,6 @@ flowchart TB
     AUTH --> A2[JWT issuance]
     AUTH --> A3[Password hashing]
     AUTH --> A4[(Postgres auth_db)]
-    AUTH --> A5[SQL migrations]
   end
 
   %% Feed service internals
@@ -63,7 +59,6 @@ flowchart TB
     FEED --> F1[HTTP handlers]
     FEED --> F2[Reads X-User-ID from gateway]
     FEED --> F3[(Postgres feed_db)]
-    FEED --> F4[SQL migrations]
   end
 
   %% Profile service internals
@@ -71,7 +66,6 @@ flowchart TB
     direction TB
     PROFILE --> P1[HTTP handlers]
     PROFILE --> P2[(Postgres profile_db)]
-    PROFILE --> P3[SQL migrations]
   end
 
   %% Chat service internals
@@ -79,7 +73,6 @@ flowchart TB
     direction TB
     CHAT --> M1[HTTP handlers]
     CHAT --> M2[(Postgres chat_db)]
-    CHAT --> M3[SQL migrations]
   end
 
   %% Auth verification call (middleware)
