@@ -1,11 +1,11 @@
 package main
 
 import (
-	"chat-service/api/handlers"
-	"chat-service/api/middleware"
-	"chat-service/internal/config"
-	"chat-service/internal/repository"
-	"chat-service/internal/service"
+	"feed-service/api/handlers"
+	"feed-service/api/middleware"
+	"feed-service/internal/config"
+	"feed-service/internal/repository"
+	"feed-service/internal/service"
 	"context"
 	"log"
 	"net/http"

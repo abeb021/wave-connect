@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"chat-service/internal/repository"
-	"chat-service/internal/service"
+	"feed-service/internal/repository"
+	"feed-service/internal/service"
 	"encoding/json"
 	"net/http"
 
@@ -59,7 +59,7 @@ func (h *Handler) GetPublication(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) UpdatePublication(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
-	var pub repository.Publication
+	var pub repository.PublicationRequest
 	if decodeErr := json.NewDecoder(r.Body).Decode(&pub); decodeErr != nil {
 		http.Error(w, decodeErr.Error(), http.StatusBadRequest)
 		return

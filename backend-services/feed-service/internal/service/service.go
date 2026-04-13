@@ -1,7 +1,7 @@
 package service
 
 import (
-	"chat-service/internal/repository"
+	"feed-service/internal/repository"
 	"context"
 )
 
