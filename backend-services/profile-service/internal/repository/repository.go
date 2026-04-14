@@ -6,8 +6,6 @@ import (
 	"strings"
 
 	"profile-service/usecases"
-
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -28,10 +26,10 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 		DB: db,
 	}
 }
-func (ps *Repository) CreateProfile(ctx context.Context, profReq *CreateProfileRequest) (*Profile, error) {
+func (ps *Repository) CreateProfile(ctx context.Context, profReq *CreateProfileRequest, id string) (*Profile, error) {
 	prof := Profile{
 		Username: profReq.Username,
-		ID:       uuid.New().String(),
+		ID:       id,
 	}
 	row := ps.DB.QueryRow(
 		ctx,

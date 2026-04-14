@@ -2,9 +2,9 @@ package service
 
 import (
 	"auth-service/internal/repository"
-	"auth-service/jwt"
+	"auth-service/pkg/jwt"
 	"auth-service/usecases"
-	"auth-service/util"
+	"auth-service/pkg/util"
 	"context"
 	"time"
 

@@ -20,6 +20,7 @@ services:
       - auth
       - chat
       - feed
+      - profile
     restart: unless-stopped
 
   auth:
@@ -35,8 +36,6 @@ services:
       JWT_SECRET: ${JWT_SECRET}
     expose:
       - 8081
-    ports:
-      - "8081:8081"
     networks:
       - wave-connect
     depends_on:

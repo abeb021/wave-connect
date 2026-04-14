@@ -31,7 +31,12 @@ func (h *Handler) CreateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	prof, err := h.Srv.CreateProfile(r.Context(), &profReq)
+	id := r.Header.Get("X-User-ID")
+	if id == "" {
+		http.Error(w, "missing user id", http.StatusUnauthorized)
+		return
+	}
+	prof, err := h.Srv.CreateProfile(r.Context(), &profReq, id)
 	if err != nil {
 		if err == usecases.ErrUserTaken {
 			http.Error(w, err.Error(), http.StatusConflict)

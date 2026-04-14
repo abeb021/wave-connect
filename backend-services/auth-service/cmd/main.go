@@ -6,7 +6,7 @@ import (
 	"auth-service/internal/config"
 	"auth-service/internal/repository"
 	"auth-service/internal/service"
-	"auth-service/jwt"
+	"auth-service/pkg/jwt"
 	"context"
 	"log"
 	"net/http"
