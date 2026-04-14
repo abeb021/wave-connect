@@ -61,7 +61,7 @@ func main() {
 	r.HandleFunc("DELETE /api/chat/{id}", h.DeleteMessage)
 
 	//WebSocket implementation in dev 
-	r.HandleFunc("/api/chat/ws", api.WsHandler)
+	r.HandleFunc("GET /api/chat/ws", api.WsHandler)
 
 	GlobalMiddleware := middleware.Chain(
 		middleware.LoggingMiddleware,

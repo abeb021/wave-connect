@@ -17,19 +17,32 @@ func JWTMiddleware(secret string, next http.Handler) http.HandlerFunc {
 			return
 		}
 
+		var tokenString string
+	
+		// check for header
 		authHeader := r.Header.Get("Authorization")
-		if authHeader == "" {
-			http.Error(w, "Missing authorization header", http.StatusUnauthorized)
+		if authHeader != "" {
+			separated := strings.Split(authHeader, " ")
+			if len(separated) == 2 || separated[0] == "Bearer" {
+				tokenString = separated[1]
+			}
+		}
+
+		// fallback to cookie (e.g. websocket)
+		if tokenString == "" {
+			cookie, err := r.Cookie("jwt")
+			if err == nil{
+				tokenString = cookie.Value
+			}
+		}
+
+		//no token
+		if tokenString == "" {
+			http.Error(w, "Missing authorization token", http.StatusUnauthorized)
 			return
 		}
 
-		separated := strings.Split(authHeader, " ")
-		if len(separated) != 2 || separated[0] != "Bearer" {
-			http.Error(w, "Malformed authorization header", http.StatusUnauthorized)
-			return
-		}
-
-		token, err := jwt.ParseWithClaims(separated[1], &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
+		token, err := jwt.ParseWithClaims(tokenString, &jwt.RegisteredClaims{}, func(token *jwt.Token) (interface{}, error) {
 			return []byte(secret), nil
 		})
 		if err != nil || !token.Valid {
@@ -44,6 +57,7 @@ func JWTMiddleware(secret string, next http.Handler) http.HandlerFunc {
 			return
 		}
 		
+		// set user for later use
 		r.Header.Set("X-User-ID", userID)
 		ctx := context.WithValue(r.Context(), "userID", userID)
 		r = r.WithContext(ctx)
