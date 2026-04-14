@@ -114,7 +114,8 @@ sequenceDiagram
   G->>G: Extract sub (userID)
 
   G->>S: Proxy request + X-User-ID
-  S-->>C: Response```
+  S-->>C: Response
+```
 
 ### What the gateway enforces
 
