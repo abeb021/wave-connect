@@ -15,6 +15,7 @@ func WsHandler(w http.ResponseWriter, r *http.Request){
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil{
 		http.Error(w, "upgrade failed", http.StatusBadRequest)
+		return
 	}
 	defer conn.Close()
 
