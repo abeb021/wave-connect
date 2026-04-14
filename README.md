@@ -29,17 +29,20 @@ Go microservices backend for a small social-style app. It’s composed of an HTT
 ```mermaid
 flowchart TB
   C[Client]
-
+  
   %% Gateway
-  subgraph Gateway["Gateway Service"]
+  G3[Gateway 8080]
+    subgraph Gateway["Gateway Service"]
     direction TB
-    G --> G1[Route mux - ServeMux]
-    G --> G2[JWT middleware]
-    G --> G3[Reverse proxy - httputil]
+    G2 --> G[JWT middleware]
+    G3 --> G2[Reverse proxy]
   end
 
   %% Domain services
-  G -->|proxy| AUTH[Auth 8081]
+  G2 -->|/auth/login| AUTH
+  G2 -->|/auth/register| AUTH
+  AUTH --> |JWT token| G2
+  G -->|proxy JWT required| AUTH[Auth 8081]
   G -->|proxy JWT required| FEED[Feed 8083]
   G -->|proxy JWT required| PROFILE[Profile 8084]
   G -.-> CHAT[Chat 8082]
@@ -75,11 +78,8 @@ flowchart TB
     CHAT --> M2[(Postgres chat_db)]
   end
 
-  %% Auth verification call (middleware)
-  G2 -->|GET /api/auth/<sub>| AUTH
-
   %% Client entrypoint
-  C -->|HTTP| G
+  C -->|HTTP| G3
 ```
 
 ## Backend internal architecture (per service)
@@ -101,18 +101,20 @@ sequenceDiagram
   participant C as Client
   participant G as Gateway (:8080)
   participant A as Auth (:8081)
+  participant S as Service (Feed/Profile/Chat)
 
   C->>G: POST /api/auth/login
   G->>A: POST /api/auth/login (proxy)
-  A-->>C: 200 + Authorization: Bearer <jwt>
+  A-->>C: 200 + JWT
 
-  C->>G: GET /api/feed/{id} (Authorization: Bearer <jwt>)
-  G->>G: Verify JWT signature (JWT_SECRET)
-  G->>A: GET /api/auth/{sub} (user existence check)
-  A-->>G: 202 Accepted
-  G->>G: Add X-User-ID: {sub}
-  G->>A: (for /api/auth/*) proxy\n(for /api/feed/*) proxy to Feed\n(for /api/profile/*) proxy to Profile
-```
+  C->>G: GET /api/feed/{id}
+
+  Note over G: JWTMiddleware
+  G->>G: Verify JWT locally (JWT_SECRET)
+  G->>G: Extract sub (userID)
+
+  G->>S: Proxy request + X-User-ID
+  S-->>C: Response```
 
 ### What the gateway enforces
 
