@@ -2,6 +2,7 @@ package main
 
 import (
 	"chat-service/api/handlers"
+	"chat-service/api"
 	"chat-service/api/middleware"
 	"chat-service/internal/config"
 	"chat-service/internal/repository"
@@ -50,10 +51,17 @@ func main() {
 	//routing
 	r := http.NewServeMux()
 
-	r.HandleFunc("POST /api/message/", h.CreateMessage)
-	r.HandleFunc("GET /api/message/{id}", h.GetMessage)
-	r.HandleFunc("PUT /api/message/{id}", h.UpdateMessage)
-	r.HandleFunc("DELETE /api/message/{id}", h.DeleteMessage)
+	r.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte("ok"))
+	})
+
+	r.HandleFunc("POST /api/chat/", h.CreateMessage)
+	r.HandleFunc("GET /api/chat/{id}", h.GetMessage)
+	r.HandleFunc("PUT /api/chat/{id}", h.UpdateMessage)
+	r.HandleFunc("DELETE /api/chat/{id}", h.DeleteMessage)
+
+	//WebSocket implementation in dev 
+	r.HandleFunc("/api/chat/ws", api.WsHandler)
 
 	GlobalMiddleware := middleware.Chain(
 		middleware.LoggingMiddleware,
