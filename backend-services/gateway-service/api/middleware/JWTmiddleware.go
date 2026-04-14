@@ -32,7 +32,10 @@ func JWTMiddleware(secret string, next http.Handler) http.HandlerFunc {
 		if tokenString == "" {
 			cookie, err := r.Cookie("jwt")
 			if err == nil{
-				tokenString = cookie.Value
+				separated := strings.Split(cookie.Value, " ")
+				if len(separated) == 2 || separated[0] == "Bearer" {
+					tokenString = separated[1]
+				}
 			}
 		}
 
@@ -47,7 +50,7 @@ func JWTMiddleware(secret string, next http.Handler) http.HandlerFunc {
 		})
 		if err != nil || !token.Valid {
 			http.Error(w, "Invalid token", http.StatusUnauthorized)
-			log.Printf("JWT validation failed: %v, token.Valid: %v", err, token.Valid)
+			log.Printf("JWT validation failed: %v, token.Valid: %v %v", err, token.Valid, tokenString)
 			return
 		}
 
