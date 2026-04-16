@@ -29,5 +29,25 @@ func (h *Hub) Register (c *Client) {
 }
 
 func (h *Hub) Unregister (c *Client) {
-	
+	set, ok := h.clients[c.UserID]
+	if !ok {
+		return
+	}
+	delete(set, c)
+	if len(set) == 0{
+		delete(h.clients, c.UserID)
+	}
+}
+
+func (h *Hub) SendToUser (c *Client, msg []byte){
+	set := h.clients[c.UserID]
+
+	for c := range set{
+		select {
+		case c.Send <- msg:
+		default:
+			h.Unregister(c)
+			_ = c.Conn.Close()
+		}
+	}
 }
