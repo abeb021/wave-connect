@@ -51,3 +51,5 @@ func (h *Hub) SendToUser (c *Client, msg []byte){
 		}
 	}
 }
+
+//TODO add mutexes
