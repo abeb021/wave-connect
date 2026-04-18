@@ -16,33 +16,39 @@ var upgrader = websocket.Upgrader{
 
 type WSHandler struct {
 	Srv *service.Service
+	Hub *Hub
 }
 
-func NewWSHandler(srv *service.Service) *WSHandler {
-	return &WSHandler{Srv: srv}
+func NewWSHandler(srv *service.Service, hub *Hub) *WSHandler {
+	return &WSHandler{Srv: srv, Hub: hub}
 }
 
 func (ws *WSHandler) ServeWS(w http.ResponseWriter, r *http.Request){
+	userID := r.Header.Get("X-User-ID")
+	if userID == ""{
+		http.Error(w, "missing user id", http.StatusUnauthorized)
+		return
+	}
+
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil{
 		http.Error(w, "upgrade failed", http.StatusBadRequest)
 		return
 	}
-	defer conn.Close()
-	userID := r.Header.Get("X-User-ID")
-	//TODO: fix context parsing
-	//userID := r.Context().Value("userID")
+
+
+	c := &Client{
+		Conn: conn,
+		UserID: userID,
+		Send: make(chan []byte),
+		Hub: ws.Hub,
+	}
+
+	ws.Hub.Register(c)
 	log.Printf("User connected: %v", userID)
 
-	for {
-		mt, msg, err := conn.ReadMessage()
-		if err != nil{
-			break
-		}
+	c.Send <- []byte("connected")
 
-		err = conn.WriteMessage(mt, msg)
-		if err != nil{
-			break
-		}
-	}
+	go c.writePump()
+	c.readPump()
 }
