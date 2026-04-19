@@ -56,15 +56,23 @@ func (h *Hub) Unregister (c *Client) {
 
 func (h *Hub) SendToUser (userID string, msg []byte){
 	h.mu.RLock()
-	set := h.clients[userID]
-	defer h.mu.RUnlock()
-
+	set, ok := h.clients[userID]
+	if !ok {
+		h.mu.RUnlock()
+		return
+	}
+	var toRemove []*Client
 	for c := range set{
 		select {
 		case c.Send <- msg:
 		default:
-			h.Unregister(c)
-			_ = c.Conn.Close()
+			toRemove = append(toRemove, c)
 		}
+	}
+	h.mu.RUnlock()
+
+	for _, c := range toRemove{
+		h.Unregister(c)
+		_ = c.Conn.Close()
 	}
 }
