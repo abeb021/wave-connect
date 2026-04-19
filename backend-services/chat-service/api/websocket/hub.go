@@ -7,6 +7,7 @@ import (
 
 type Hub struct {
 	mu      sync.RWMutex
+	//list of connections of a user (userID)
 	clients map[string]map[*Client]bool
 }
 
@@ -28,10 +29,12 @@ func (h *Hub) Register (c *Client) {
 	defer h.mu.Unlock()
 	
 	set, ok := h.clients[c.UserID]
+	//if user is not registred then we need to create him a place by his id
 	if !ok{
 		set = make(map[*Client]bool)
 		h.clients[c.UserID] = set
 	}
+	// so if its his 2nd or more connection we just add it
 	set[c] = true
 }
 
@@ -43,7 +46,9 @@ func (h *Hub) Unregister (c *Client) {
 	if !ok {
 		return
 	}
+	//we delete only this connection
 	delete(set, c)
+	//if it was the last connection we delete user from clients map
 	if len(set) == 0{
 		delete(h.clients, c.UserID)
 	}

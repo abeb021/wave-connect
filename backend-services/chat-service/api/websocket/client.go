@@ -56,20 +56,21 @@ func (c *Client) writePump () {
 		_ = c.Conn.Close()
 	}()
 
-
-
 	for {
 		select{
 		case msg, ok := <-c.Send:
 			_ = c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
+			//if for some reason the channel is closed, we close the ws connection
 			if !ok {
 				_ = c.Conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
 			} 
+			//if ok we send received message from the channel
 			if err := c.Conn.WriteMessage(websocket.TextMessage, msg); err != nil{
 				return
 			}
 
+		// for ping pong ws
 		case <- ticker.C:
 			_ = c.Conn.SetWriteDeadline(time.Now().Add(writeWait))
 			if err := c.Conn.WriteMessage(websocket.PingMessage, nil); err != nil{

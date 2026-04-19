@@ -41,7 +41,7 @@ func (ws *WSHandler) ServeWS(w http.ResponseWriter, r *http.Request){
 	c := &Client{
 		Conn:   conn,
 		UserID: userID,
-		Send:   make(chan []byte),
+		Send:   make(chan []byte, 256),
 		Hub:    ws.Hub,
 	}
 
