@@ -47,7 +47,8 @@ func main() {
 	repo := repository.NewRepository(dbPool)
 	srv := service.NewService(repo)
 	h := handlers.NewHandler(srv)
-	ws := websocket.NewWSHandler(srv)
+	hub := websocket.NewHub()
+	ws := websocket.NewWSHandler(srv, hub)
 
 	//routing
 	r := http.NewServeMux()
@@ -62,7 +63,7 @@ func main() {
 	r.HandleFunc("DELETE /api/chat/{id}", h.DeleteMessage)
 
 	//WebSocket implementation in dev 
-	r.HandleFunc("GET /api/chat/ws", ws.WsHandler)
+	r.HandleFunc("GET /api/chat/ws", ws.ServeWS)
 
 	GlobalMiddleware := middleware.Chain(
 		middleware.LoggingMiddleware,

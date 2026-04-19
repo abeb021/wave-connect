@@ -1,8 +1,12 @@
 package websocket
 
-import "github.com/gorilla/websocket"
+import (
+	"sync"
+	"github.com/gorilla/websocket"
+)
 
 type Hub struct {
+	mu      sync.RWMutex
 	clients map[string]map[*Client]bool
 }
 
@@ -20,6 +24,9 @@ func NewHub() *Hub{
 }
 
 func (h *Hub) Register (c *Client) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	
 	set, ok := h.clients[c.UserID]
 	if !ok{
 		set = make(map[*Client]bool)
@@ -29,6 +36,9 @@ func (h *Hub) Register (c *Client) {
 }
 
 func (h *Hub) Unregister (c *Client) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
 	set, ok := h.clients[c.UserID]
 	if !ok {
 		return
@@ -39,8 +49,10 @@ func (h *Hub) Unregister (c *Client) {
 	}
 }
 
-func (h *Hub) SendToUser (c *Client, msg []byte){
-	set := h.clients[c.UserID]
+func (h *Hub) SendToUser (userID string, msg []byte){
+	h.mu.RLock()
+	set := h.clients[userID]
+	defer h.mu.RUnlock()
 
 	for c := range set{
 		select {
@@ -51,5 +63,3 @@ func (h *Hub) SendToUser (c *Client, msg []byte){
 		}
 	}
 }
-
-//TODO add mutexes

@@ -30,25 +30,30 @@ func (ws *WSHandler) ServeWS(w http.ResponseWriter, r *http.Request){
 		return
 	}
 
+	// upgrade http to ws
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil{
 		http.Error(w, "upgrade failed", http.StatusBadRequest)
 		return
 	}
 
-
+	// create client of a user (phone, laptop, browser)
 	c := &Client{
-		Conn: conn,
+		Conn:   conn,
 		UserID: userID,
-		Send: make(chan []byte),
-		Hub: ws.Hub,
+		Send:   make(chan []byte),
+		Hub:    ws.Hub,
 	}
 
+	//register this single connection to a hub (map[UserId]map[*Client]bool)
 	ws.Hub.Register(c)
 	log.Printf("User connected: %v", userID)
 
+	//initial message
 	c.Send <- []byte("connected")
 
+	//start both
 	go c.writePump()
+	//block till return
 	c.readPump()
 }
