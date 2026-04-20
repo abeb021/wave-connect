@@ -2,20 +2,12 @@ package websocket
 
 import (
 	"sync"
-	"github.com/gorilla/websocket"
 )
 
 type Hub struct {
 	mu      sync.RWMutex
 	//list of connections of a user (userID)
 	clients map[string]map[*Client]bool
-}
-
-type Client struct {
-    Conn   *websocket.Conn
-    UserID string
-    Send   chan []byte
-    Hub    *Hub
 }
 
 func NewHub() *Hub{
@@ -27,7 +19,7 @@ func NewHub() *Hub{
 func (h *Hub) Register (c *Client) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
-	
+
 	set, ok := h.clients[c.UserID]
 	//if user is not registred then we need to create him a place by his id
 	if !ok{
@@ -61,18 +53,19 @@ func (h *Hub) SendToUser (userID string, msg []byte){
 		h.mu.RUnlock()
 		return
 	}
-	var toRemove []*Client
+
+	clients := make([]*Client, 0, len(set))
 	for c := range set{
-		select {
-		case c.Send <- msg:
-		default:
-			toRemove = append(toRemove, c)
-		}
+		clients = append(clients, c)
 	}
 	h.mu.RUnlock()
 
-	for _, c := range toRemove{
-		h.Unregister(c)
-		_ = c.Conn.Close()
+	for _, c := range clients{
+		select {
+		case c.Send <- msg:
+		default:
+			h.Unregister(c)
+			_ = c.Conn.Close()
+		}
 	}
 }

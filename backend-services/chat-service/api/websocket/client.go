@@ -1,12 +1,22 @@
 package websocket
 
 import (
+	"chat-service/internal/service"
+	_"encoding/json"
 	"errors"
 	"log"
 	"time"
 
 	"github.com/gorilla/websocket"
 )
+
+type Client struct {
+	Conn   *websocket.Conn
+	UserID string
+	Send   chan []byte
+	Hub    *Hub
+	Srv    *service.Service
+}
 
 const (
 	writeWait  = 10 * time.Second
@@ -20,7 +30,6 @@ func (c *Client) readPump () {
 	defer func(){
 		c.Hub.Unregister(c)
 		close(c.Send)
-		_ = c.Conn.Close()
 	}()
 
 	c.Conn.SetReadLimit(maxMsgSize)

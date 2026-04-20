@@ -43,6 +43,7 @@ func (ws *WSHandler) ServeWS(w http.ResponseWriter, r *http.Request){
 		UserID: userID,
 		Send:   make(chan []byte, 256),
 		Hub:    ws.Hub,
+		Srv:    ws.Srv,
 	}
 
 	//register this single connection to a hub (map[UserId]map[*Client]bool)
