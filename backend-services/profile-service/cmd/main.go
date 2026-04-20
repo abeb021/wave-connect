@@ -57,7 +57,6 @@ func main() {
 
 	GlobalMiddleware := middleware.Chain(
 		middleware.LoggingMiddleware,
-		middleware.CorsMiddleware,
 	)
 
 	handler := GlobalMiddleware(r)
