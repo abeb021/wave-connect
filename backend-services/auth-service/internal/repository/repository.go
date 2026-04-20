@@ -100,6 +100,27 @@ func (ps *Repository) GetUserById(ctx context.Context, id string) (*UserResponse
 	return usr, nil
 }
 
+func (ps *Repository) GetUserByUsername(ctx context.Context, username string) (*UserResponse, error) {
+	usr := &UserResponse{}
+
+	row := ps.DB.QueryRow(
+		ctx,
+		`SELECT id, username, email, created_at
+		 FROM users 
+		 WHERE username = $1`,
+		username)
+
+	err := row.Scan(&usr.ID, &usr.Username, &usr.Email, &usr.CreatedAt)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, usecases.ErrUserNotFound
+		}
+		return nil, err
+	}
+
+	return usr, nil
+}
+
 func (ps *Repository) DeleteUser(ctx context.Context, id string) error {
 	ct, err := ps.DB.Exec(
 		ctx,

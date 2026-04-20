@@ -39,14 +39,14 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
-	var usr repository.UserRequest
-	err := json.NewDecoder(r.Body).Decode(&usr)
+	var usrReq repository.UserRequest
+	err := json.NewDecoder(r.Body).Decode(&usrReq)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	token, err := h.Srv.Login(r.Context(), &usr)
+	token, err := h.Srv.Login(r.Context(), &usrReq)
 	if err != nil {
 		if err == usecases.ErrWrongPassword {
 			http.Error(w, usecases.ErrWrongPassword.Error(), http.StatusBadRequest)
@@ -64,10 +64,28 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusAccepted)
 }
 
-func (h *Handler) GetUser(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) GetUserById(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
-
+	
 	usrResponse, err := h.Srv.GetUserById(r.Context(), id)
+	if err != nil {
+		if err == usecases.ErrUserNotFound {
+			http.Error(w, usecases.ErrUserNotFound.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusAccepted)
+	json.NewEncoder(w).Encode(usrResponse)
+}
+
+func (h *Handler) GetUserByUsername(w http.ResponseWriter, r *http.Request) {
+	username := r.PathValue("username")
+
+	usrResponse, err := h.Srv.GetUserByUsername(r.Context(), username)
 	if err != nil {
 		if err == usecases.ErrUserNotFound {
 			http.Error(w, usecases.ErrUserNotFound.Error(), http.StatusNotFound)

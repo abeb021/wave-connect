@@ -67,6 +67,10 @@ func (s *Service) GetUserById(ctx context.Context, id string) (*repository.UserR
 	return s.Repo.GetUserById(ctx, id)
 }
 
+func (s *Service) GetUserByUsername(ctx context.Context, username string) (*repository.UserResponse, error) {
+	return s.Repo.GetUserByUsername(ctx, username)
+}
+
 func (s *Service) DeleteUser(ctx context.Context, id string) error {
 	return s.Repo.DeleteUser(ctx, id)
 }
