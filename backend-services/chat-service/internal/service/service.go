@@ -15,7 +15,7 @@ func NewService(repo *repository.Repository) *Service {
 	}
 }
 
-func (s *Service) CreateMessage(ctx context.Context, msg repository.Message) (repository.Message, error) {
+func (s *Service) CreateMessage(ctx context.Context, msg *repository.MessageRequest) (*repository.Message, error) {
 	return s.Repo.CreateMessage(ctx, msg)
 }
 

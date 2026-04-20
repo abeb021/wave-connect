@@ -16,15 +16,15 @@ type inboundMessage struct {
 	Payload json.RawMessage `json:"payload"`
 }
 
-type chatSendPayload struct {
-	Receiver string `json:"receiver"`
-	Text     string `json:"text"`
-}
-
 type outboundMessage struct {
 	Type      string    `json:"type"`
-	TimeStamp time.Time `json:"data,omitempty"`
+	TimeStamp time.Time `json:"timestamp,omitempty"`
 	ID        string    `json:"id,omitempty"`
 	Payload   any       `json:"payload,omitempty"`
 	Err       string    `json:"error,omitempty"`
+}
+
+type chatSendPayload struct {
+	Receiver string `json:"receiver"`
+	Text     string `json:"text"`
 }

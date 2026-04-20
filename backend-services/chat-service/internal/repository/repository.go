@@ -25,8 +25,13 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 		DB: db,
 	}
 }
-func (ps *Repository) CreateMessage(ctx context.Context, msg Message) (Message, error) {
-	msg.ID = uuid.New().String()
+func (ps *Repository) CreateMessage(ctx context.Context, msgReq *MessageRequest) (*Message, error) {
+	msg := Message{
+		ID: uuid.New().String(),
+		Text: msgReq.Text,
+		Receiver: msgReq.Receiver,
+		Sender: msgReq.Sender,
+	}
 	row := ps.DB.QueryRow(
 		ctx,
 		`INSERT INTO messages (id, text, sender, receiver)
@@ -36,10 +41,10 @@ func (ps *Repository) CreateMessage(ctx context.Context, msg Message) (Message, 
 	)
 
 	if err := row.Scan(&msg.TimeSent); err != nil {
-		return Message{}, err
+		return nil, err
 	}
 
-	return msg, nil
+	return &msg, nil
 }
 
 func (ps *Repository) GetMessage(ctx context.Context, id string) (Message, error) {

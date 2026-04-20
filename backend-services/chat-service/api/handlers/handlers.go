@@ -18,14 +18,14 @@ func NewHandler(srv *service.Service) *Handler {
 }
 
 func (h *Handler) CreateMessage(w http.ResponseWriter, r *http.Request) {
-	var msg repository.Message
-	err := json.NewDecoder(r.Body).Decode(&msg)
+	var msgReq repository.MessageRequest
+	err := json.NewDecoder(r.Body).Decode(&msgReq)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	msg, err = h.Srv.CreateMessage(r.Context(), msg)
+	msg, err := h.Srv.CreateMessage(r.Context(), &msgReq)
 	if err != nil {
 		http.Error(w, "failed to create message", http.StatusInternalServerError)
 		return
