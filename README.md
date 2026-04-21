@@ -244,10 +244,4 @@ curl -i -X POST http://localhost:8080/api/auth/login \
 
 ## TODO
 
-- **Chat over WebSockets**: add a WS endpoint (gateway + chat service) for real-time messaging and typing/read receipts
-- **Chat conversation endpoints**: add `GET /api/chat/conversation/{peerId}` to return all messages between the authenticated user and a peer, ordered by `time_sent`
-- **Chat inbox endpoint**: add `GET /api/chat/conversations` to return the authenticated user's conversation list
-- **Chat sender trust**: on `POST /api/chat/`, stop trusting `sender` from the frontend and derive it from gateway-provided `X-User-ID`
-- **Feed listing endpoint**: add `GET /api/feed/` to return all publications, newest first
-- **Feed by user endpoint**: add `GET /api/feed/user/{userId}` to return all publications for a specific user
 - **Feed author data**: add a grpc call to a profile service to load profile metadata in publication
