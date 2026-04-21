@@ -53,7 +53,7 @@ func main() {
 	r.HandleFunc("POST /api/profile/", h.CreateProfile)
 	r.HandleFunc("GET /api/profile/{id}", h.GetProfile)
 	r.HandleFunc("PUT /api/profile/", h.UpdateProfile)
-	r.HandleFunc("DELETE /api/profile/{id}", h.DeleteProfile)
+	r.HandleFunc("DELETE /api/profile/", h.DeleteProfile)
 
 	GlobalMiddleware := middleware.Chain(
 		middleware.LoggingMiddleware,
