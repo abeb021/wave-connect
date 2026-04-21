@@ -57,7 +57,8 @@ func main() {
 		w.Write([]byte("ok"))
 	})
 
-	r.HandleFunc("POST /api/chat/", h.CreateMessage)
+	//r.HandleFunc("POST /api/chat/", h.CreateMessage)
+	r.HandleFunc("GET /api/chat/conversation/{peerId}", h.GetConversation)
 	r.HandleFunc("GET /api/chat/{id}", h.GetMessage)
 	r.HandleFunc("PUT /api/chat/{id}", h.UpdateMessage)
 	r.HandleFunc("DELETE /api/chat/{id}", h.DeleteMessage)
