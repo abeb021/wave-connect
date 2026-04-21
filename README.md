@@ -7,9 +7,9 @@ Go microservices backend for a small social-style app. It’s composed of an HTT
 - `backend-services/`: everything (services + docker compose)
   - `docker-compose.yml`: runs gateway, services, and 4 Postgres containers
   - `gateway-service/`: API gateway (reverse proxy + JWT auth middleware)
-  - `auth-service/`: registration/login + JWT issuance
-  - `chat-service/`: message CRUD
-  - `feed-service/`: publication CRUD
+  - `auth-service/`: registration/login + JWT issuance + user lookup/delete
+  - `chat-service/`: conversation APIs + message CRUD + WebSocket chat
+  - `feed-service/`: publication CRUD + feed listing endpoints
   - `profile-service/`: profile CRUD
 
 ## Tech stack
@@ -19,6 +19,7 @@ Go microservices backend for a small social-style app. It’s composed of an HTT
 - **Style**: straightforward Go services built on stdlib (minimal framework magic)
 - **Gateway proxy**: Go stdlib `net/http/httputil` reverse proxy
 - **Auth**: JWT (`github.com/golang-jwt/jwt/v5`), password hashing (`golang.org/x/crypto`)
+- **Realtime**: Gorilla WebSocket (`github.com/gorilla/websocket`) in chat-service
 - **DB**: Postgres 16 (Docker), `pgx` (`github.com/jackc/pgx/v5`)
 - **Migrations**: `golang-migrate` (`github.com/golang-migrate/migrate/v4`)
 - **Config**: `viper` (`github.com/spf13/viper`)
@@ -45,7 +46,7 @@ flowchart TB
   G -->|proxy JWT required| AUTH[Auth 8081]
   G -->|proxy JWT required| FEED[Feed 8083]
   G -->|proxy JWT required| PROFILE[Profile 8084]
-  G -.-> CHAT[Chat 8082]
+  G -->|proxy JWT required| CHAT[Chat 8082]
 
   %% Auth service internals
   subgraph AuthService["Auth Service"]
@@ -75,6 +76,7 @@ flowchart TB
   subgraph ChatService["Chat Service"]
     direction TB
     CHAT --> M1[HTTP handlers]
+    CHAT --> M3[WebSocket hub]
     CHAT --> M2[(Postgres chat_db)]
   end
 
@@ -87,6 +89,7 @@ flowchart TB
 Each domain service follows a simple separation of concerns:
 
 - **API layer**: HTTP handlers + (service-specific) middleware under `api/`
+- **Realtime layer**: chat-service also includes a WebSocket hub under `api/websocket`
 - **Business logic**: service layer under `internal/` (or similar)
 - **Data access**: repository/data layer under `internal/` (Postgres via `pgx`)
 - **Schema management**: SQL migrations under `migrations/`
@@ -117,6 +120,23 @@ sequenceDiagram
   S-->>C: Response
 ```
 
+### WebSocket auth flow
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant C as Client
+  participant G as Gateway (:8080)
+  participant CH as Chat (:8082)
+
+  C->>G: GET /api/chat/ws
+  Note over C,G: Authorization header or jwt cookie
+  G->>G: Validate JWT
+  G->>CH: Proxy upgrade request + X-User-ID
+  CH->>CH: Upgrade HTTP to WebSocket
+  CH-->>C: connected
+```
+
 ### What the gateway enforces
 
 - `POST /api/auth/register` and `POST /api/auth/login` are proxied without JWT.
@@ -124,8 +144,11 @@ sequenceDiagram
   - `/api/auth/`
   - `/api/feed/`
   - `/api/profile/`
+  - `/api/chat/`
   requires `Authorization: Bearer <token>`.
 - On successful JWT verification, the gateway forwards `X-User-ID: <jwt subject>` to downstream services (used by feed service).
+- Chat WebSocket connections also rely on that forwarded `X-User-ID`.
+- The JWT middleware also accepts a `jwt` cookie as a fallback token source (useful for WebSocket connections).
 
 ## API endpoints
 
@@ -137,12 +160,15 @@ Base URL: `http://localhost:8080`
 
 - `POST /api/auth/register`
 - `POST /api/auth/login`
-- `GET /api/auth/{id}` (requires JWT)
+- `GET /api/auth/id/{id}` (requires JWT)
+- `GET /api/auth/username/{username}` (requires JWT)
 - `DELETE /api/auth/{id}` (requires JWT)
 
 #### Feed (proxied to feed-service; requires JWT)
 
 - `POST /api/feed/`
+- `GET /api/feed/`
+- `GET /api/feed/user/{userID}`
 - `GET /api/feed/{id}`
 - `PUT /api/feed/{id}`
 - `DELETE /api/feed/{id}`
@@ -154,9 +180,20 @@ Base URL: `http://localhost:8080`
 - `PUT /api/profile/{id}`
 - `DELETE /api/profile/{id}`
 
-#### Chat (service exists; gateway proxy currently commented out)
+#### Chat (proxied to chat-service; requires JWT)
 
-The chat service runs in compose, but the gateway route is currently commented out in `backend-services/gateway-service/api/handlers.go`.
+- `GET /api/chat/conversation`
+- `GET /api/chat/conversation/{peerID}`
+- `GET /api/chat/{id}`
+- `PUT /api/chat/{id}`
+- `DELETE /api/chat/{id}`
+- `GET /api/chat/ws`
+
+Notes:
+
+- WebSocket chat is enabled at `GET /api/chat/ws`
+- direct chat health check is available at `GET http://localhost:8082/health`
+- `POST /api/chat/` exists in the chat handler, but the route is currently commented out in `backend-services/chat-service/cmd/main.go`
 
 ### Direct service ports (Docker)
 
@@ -240,6 +277,14 @@ curl -i -X POST http://localhost:8080/api/auth/register \
 curl -i -X POST http://localhost:8080/api/auth/login \
   -H 'Content-Type: application/json' \
   -d '{"username":"alice","email":"alice@example.com","password":"password"}'
+
+# feed list (replace <jwt>)
+curl -i http://localhost:8080/api/feed/ \
+  -H 'Authorization: Bearer <jwt>'
+
+# current user's conversations (replace <jwt>)
+curl -i http://localhost:8080/api/chat/conversation \
+  -H 'Authorization: Bearer <jwt>'
 ```
 
 ## TODO
