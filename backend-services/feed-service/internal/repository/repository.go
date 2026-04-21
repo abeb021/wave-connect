@@ -124,14 +124,14 @@ func (ps *Repository) GetPublication(ctx context.Context, id string) (*Publicati
 	return &pub, nil
 }
 
-func (ps *Repository) UpdatePublication(ctx context.Context, id string, text string) error {
+func (ps *Repository) UpdatePublication(ctx context.Context, id, text, userID string) error {
 
 	ct, err := ps.DB.Exec(
 		ctx,
 		`UPDATE publications
 		 SET text = $1
-		 WHERE id = $2`,
-		text, id,
+		 WHERE id = $2 AND user_id = $3`,
+		text, id, userID,
 	)
 
 	if err != nil {
@@ -144,12 +144,12 @@ func (ps *Repository) UpdatePublication(ctx context.Context, id string, text str
 	return nil
 }
 
-func (ps *Repository) DeletePublication(ctx context.Context, id string) error {
+func (ps *Repository) DeletePublication(ctx context.Context, id, userID string) error {
 	ct, err := ps.DB.Exec(
 		ctx,
 		`DELETE FROM publications 
-		 WHERE id=$1`,
-		id,
+		 WHERE id=$1 AND user_id = $2`,
+		id, userID,
 	)
 
 	if err != nil {

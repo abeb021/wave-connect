@@ -113,7 +113,7 @@ func (h *Handler) UpdateMessage(w http.ResponseWriter, r *http.Request) {
 
 	msg.Sender = r.Header.Get("X-User-ID")
 
-	err := h.Srv.UpdateMessage(r.Context(), id, msg.Text)
+	err := h.Srv.UpdateMessage(r.Context(), id, msg.Text, msg.Sender)
 
 	if err != nil {
 		if err.Error() == "ID not found" {

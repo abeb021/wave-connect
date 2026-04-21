@@ -135,14 +135,14 @@ func (ps *Repository) GetMessage(ctx context.Context, id string) (Message, error
 	return msg, nil
 }
 
-func (ps *Repository) UpdateMessage(ctx context.Context, id string, text string) error {
+func (ps *Repository) UpdateMessage(ctx context.Context, id, text, senderID string) error {
 
 	ct, err := ps.DB.Exec(
 		ctx,
 		`UPDATE messages
 		 SET text = $1
-		 WHERE id = $2`,
-		text, id,
+		 WHERE id = $2 AND sender = $3`,
+		text, id, senderID,
 	)
 
 	if err != nil {

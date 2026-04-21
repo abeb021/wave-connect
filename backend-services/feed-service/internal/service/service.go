@@ -32,12 +32,12 @@ func (s *Service) GetPublication(ctx context.Context, id string) (*repository.Pu
 	return s.Repo.GetPublication(ctx, id)
 }
 
-func (s *Service) UpdatePublication(ctx context.Context, id string, text string) error {
-	return s.Repo.UpdatePublication(ctx, id, text)
+func (s *Service) UpdatePublication(ctx context.Context, id, text, userID string) error {
+	return s.Repo.UpdatePublication(ctx, id, text, userID)
 
 }
 
-func (s *Service) DeletePublication(ctx context.Context, id string) error {
-	return s.Repo.DeletePublication(ctx, id)
+func (s *Service) DeletePublication(ctx context.Context, id, userID string) error {
+	return s.Repo.DeletePublication(ctx, id, userID)
 
 }

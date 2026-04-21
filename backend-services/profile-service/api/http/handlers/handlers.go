@@ -69,7 +69,7 @@ func (h *Handler) GetProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
+	userId := r.Header.Get("X-User-ID")
 
 	var prof repository.Profile
 	if decodeErr := json.NewDecoder(r.Body).Decode(&prof); decodeErr != nil {
@@ -77,7 +77,7 @@ func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	prof.ID = id
+	prof.ID = userId
 
 	err := h.Srv.UpdateProfile(r.Context(), &prof)
 
@@ -95,9 +95,9 @@ func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) DeleteProfile(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
+	userID := r.Header.Get("X-User-ID")
 
-	err := h.Srv.DeleteProfile(r.Context(), id)
+	err := h.Srv.DeleteProfile(r.Context(), userID)
 
 	if err != nil {
 		if err.Error() == "ID not found" {

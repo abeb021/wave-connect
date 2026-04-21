@@ -103,7 +103,9 @@ func (h *Handler) UpdatePublication(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.Srv.UpdatePublication(r.Context(), id, pub.Text)
+	pub.UserID = r.Header.Get("X-User-ID")
+
+	err := h.Srv.UpdatePublication(r.Context(), id, pub.Text, pub.UserID)
 
 	if err != nil {
 		if err.Error() == "ID not found" {
@@ -120,8 +122,9 @@ func (h *Handler) UpdatePublication(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) DeletePublication(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
+	userID := r.Header.Get("X-User-ID")
 
-	err := h.Srv.DeletePublication(r.Context(), id)
+	err := h.Srv.DeletePublication(r.Context(), id, userID)
 
 	if err != nil {
 		if err.Error() == "ID not found" {

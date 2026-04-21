@@ -23,7 +23,7 @@ func JWTMiddleware(secret string, next http.Handler) http.HandlerFunc {
 		authHeader := r.Header.Get("Authorization")
 		if authHeader != "" {
 			separated := strings.Split(authHeader, " ")
-			if len(separated) == 2 || separated[0] == "Bearer" {
+			if len(separated) == 2 && separated[0] == "Bearer" {
 				tokenString = separated[1]
 			}
 		}
@@ -33,7 +33,7 @@ func JWTMiddleware(secret string, next http.Handler) http.HandlerFunc {
 			cookie, err := r.Cookie("jwt")
 			if err == nil {
 				separated := strings.Split(cookie.Value, " ")
-				if len(separated) == 2 || separated[0] == "Bearer" {
+				if len(separated) == 2 && separated[0] == "Bearer" {
 					tokenString = separated[1]
 				}
 			}
