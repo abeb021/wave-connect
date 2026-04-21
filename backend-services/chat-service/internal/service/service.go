@@ -19,8 +19,12 @@ func (s *Service) CreateMessage(ctx context.Context, msg *repository.MessageRequ
 	return s.Repo.CreateMessage(ctx, msg)
 }
 
-func (s *Service) GetConversation(ctx context.Context, senderID, receiverID string) ([]repository.Message, error) {
-	return s.Repo.GetConversation(ctx, senderID, receiverID)
+func (s *Service) GetConversation(ctx context.Context, senderID string) ([]repository.Message, error) {
+	return s.Repo.GetConversation(ctx, senderID)
+}
+
+func (s *Service) GetConversationWithPeer(ctx context.Context, senderID, receiverID string) ([]repository.Message, error) {
+	return s.Repo.GetConversationWithPeer(ctx, senderID, receiverID)
 }
 
 func (s *Service) GetMessage(ctx context.Context, id string) (repository.Message, error) {

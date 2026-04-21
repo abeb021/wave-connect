@@ -37,16 +37,40 @@ func (h *Handler) CreateMessage(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(msg)
 }
 
+
+
 func (h *Handler) GetConversation(w http.ResponseWriter, r *http.Request) {
-	receiverID := r.PathValue("peerID")
 	senderID := r.Header.Get("X-User-ID")
 
 	if senderID == ""{
+        http.Error(w, "your id is required", http.StatusBadRequest)
+        return
+    }
+
+	conv, err := h.Srv.GetConversation(r.Context(), senderID)
+	if err != nil{
+		http.Error(w, "failed to get conversation", http.StatusInternalServerError)
+		return
+	}
+
+	if conv == nil{
+		conv = []repository.Message{}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(conv)
+}
+
+func (h *Handler) GetConversationWithPeer(w http.ResponseWriter, r *http.Request) {
+	receiverID := r.PathValue("peerID")
+	senderID := r.Header.Get("X-User-ID")
+
+	if receiverID == ""{
         http.Error(w, "peer id is required", http.StatusBadRequest)
         return
     }
 
-	conv, err := h.Srv.GetConversation(r.Context(), senderID, receiverID)
+	conv, err := h.Srv.GetConversationWithPeer(r.Context(), senderID, receiverID)
 	if err != nil{
 		http.Error(w, "failed to get conversation", http.StatusInternalServerError)
 		return

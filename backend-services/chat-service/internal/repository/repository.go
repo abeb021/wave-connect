@@ -48,7 +48,40 @@ func (ps *Repository) CreateMessage(ctx context.Context, msgReq *MessageRequest)
 	return &msg, nil
 }
 
-func (ps *Repository) GetConversation(ctx context.Context, senderID, receiverID string) ([]Message, error) {
+func (ps *Repository) GetConversation(ctx context.Context, senderID string) ([]Message, error) {
+	rows, err := ps.DB.Query(
+		ctx,
+		`SELECT id, text, sender, receiver, time_sent
+		 FROM messages
+		 WHERE sender = $1
+		 ORDER BY time_sent ASC;`,
+		 senderID,
+	)
+
+	if err != nil{
+		return nil, err
+	}
+	defer rows.Close()
+
+	var msgs []Message
+
+	for rows.Next(){
+		var msg Message
+		err := rows.Scan(&msg.ID, &msg.Text, &msg.Sender, &msg.Receiver, &msg.TimeSent)
+		if err != nil{
+			return nil, err
+		}
+		msgs = append(msgs, msg)
+	}
+
+	if err = rows.Err(); err != nil{
+		return nil, err
+	}
+
+	return msgs, nil
+}
+
+func (ps *Repository) GetConversationWithPeer(ctx context.Context, senderID, receiverID string) ([]Message, error) {
 	rows, err := ps.DB.Query(
 		ctx,
 		`SELECT id, text, sender, receiver, time_sent
