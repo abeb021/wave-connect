@@ -46,6 +46,66 @@ func (ps *Repository) CreatePublication(ctx context.Context, pubReq PublicationR
 	return &pub, nil
 }
 
+func (ps *Repository) GetFeed(ctx context.Context) ([]Publication, error) {
+	rows, err := ps.DB.Query(
+		ctx,
+		`SELECT id, text, user_id, time_created
+		FROM publications
+		ORDER BY time_created DESC`,
+	)
+	if err != nil{
+		return nil, err
+	}
+	defer rows.Close()
+	
+	var pubs []Publication
+	for rows.Next(){
+		var pub Publication
+		err := rows.Scan(&pub.ID, &pub.Text, &pub.UserID, &pub.TimeCreated)
+		if err != nil{
+			return nil, err
+		}
+		pubs = append(pubs, pub)
+	}
+
+	if err = rows.Err(); err != nil{
+		return nil, err
+	}
+
+	return pubs, nil
+}
+
+func (ps *Repository) GetPublicationsByUser(ctx context.Context, userID string) ([]Publication, error) {
+	rows, err := ps.DB.Query(
+		ctx,
+		`SELECT id, text, user_id, time_created
+		FROM publications
+		WHERE user_id = $1
+		ORDER BY time_created DESC`,
+		userID,
+	)
+	if err != nil{
+		return nil, err
+	}
+	defer rows.Close()
+	
+	var pubs []Publication
+	for rows.Next(){
+		var pub Publication
+		err := rows.Scan(&pub.ID, &pub.Text, &pub.UserID, &pub.TimeCreated)
+		if err != nil{
+			return nil, err
+		}
+		pubs = append(pubs, pub)
+	}
+
+	if err = rows.Err(); err != nil{
+		return nil, err
+	}
+
+	return pubs, nil
+}
+
 func (ps *Repository) GetPublication(ctx context.Context, id string) (*Publication, error) {
 	var pub Publication
 

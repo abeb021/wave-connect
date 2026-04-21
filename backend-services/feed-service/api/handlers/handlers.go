@@ -1,9 +1,9 @@
 package handlers
 
 import (
+	"encoding/json"
 	"feed-service/internal/repository"
 	"feed-service/internal/service"
-	"encoding/json"
 	"net/http"
 
 	"github.com/jackc/pgx/v5"
@@ -37,6 +37,44 @@ func (h *Handler) CreatePublication(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(pub)
 }
+
+func (h *Handler) GetFeed(w http.ResponseWriter, r *http.Request) {
+	pubs, err := h.Srv.GetFeed(r.Context())
+	if err != nil {
+		http.Error(w, "failed to get feed", http.StatusInternalServerError)
+		return
+	}
+
+	if pubs == nil{
+		pubs = []repository.Publication{}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(pubs)
+}
+
+func (h *Handler) GetPublicationsByUser(w http.ResponseWriter, r *http.Request) {
+	userID := r.PathValue("userID")
+
+	if userID == ""{
+        http.Error(w, "user id is required", http.StatusBadRequest)
+        return
+    }
+
+	pubs, err := h.Srv.GetPublicationsByUser(r.Context(), userID)
+	if err != nil {
+		http.Error(w, "failed to get feed", http.StatusInternalServerError)
+		return
+	}
+
+	if pubs == nil{
+		pubs = []repository.Publication{}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(pubs)
+}
+
 
 func (h *Handler) GetPublication(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")

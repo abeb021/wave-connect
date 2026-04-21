@@ -51,6 +51,8 @@ func main() {
 	r := http.NewServeMux()
 
 	r.HandleFunc("POST /api/feed/", h.CreatePublication)
+	r.HandleFunc("GET /api/feed/", h.GetFeed)
+	r.HandleFunc("GET /api/feed/user/{userID}", h.GetPublicationsByUser)
 	r.HandleFunc("GET /api/feed/{id}", h.GetPublication)
 	r.HandleFunc("PUT /api/feed/{id}", h.UpdatePublication)
 	r.HandleFunc("DELETE /api/feed/{id}", h.DeletePublication)
