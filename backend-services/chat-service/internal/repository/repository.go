@@ -53,7 +53,7 @@ func (ps *Repository) GetConversation(ctx context.Context, senderID string) ([]M
 		ctx,
 		`SELECT id, text, sender, receiver, time_sent
 		 FROM messages
-		 WHERE sender = $1
+		 WHERE sender = $1  OR receiver = $1
 		 ORDER BY time_sent ASC;`,
 		 senderID,
 	)
