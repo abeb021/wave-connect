@@ -1,6 +1,6 @@
 module feed-service
 
-go 1.25.6
+go 1.26.1
 
 require (
 	github.com/golang-migrate/migrate/v4 v4.19.1
