@@ -74,7 +74,7 @@ func (ps *Repository) UpdateProfile(ctx context.Context, prof *Profile) error {
 		ctx,
 		`UPDATE profiles
 		 SET username = $1,
-		 SET bio = $2
+		     bio = $2
 		 WHERE id = $3
 		 `,
 		prof.Username, prof.Bio, prof.ID,

@@ -136,8 +136,10 @@ func (h *Handler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetAvatar(w http.ResponseWriter, r *http.Request) {
-	userID := r.Header.Get("X-User-ID")
-
+	userID := r.PathValue("id")
+	if userID == "" {
+		userID = r.Header.Get("X-User-ID")
+	}
 	avatar, err := h.Srv.GetAvatar(r.Context(), userID)
 
 	if err != nil {
