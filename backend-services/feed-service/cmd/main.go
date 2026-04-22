@@ -59,7 +59,7 @@ func main() {
 
 	r.HandleFunc("POST /api/feed/{pubID}/comment/", h.CreateComment)
 	r.HandleFunc("GET /api/feed/{pubID}/comment/", h.GetCommentsByPublication)
-	r.HandleFunc("DELETE /api/feed/{pubID}/comment/", h.DeleteComment)
+	r.HandleFunc("DELETE /api/feed/comment/{id}", h.DeleteComment)
 	
 
 	GlobalMiddleware := middleware.Chain(
