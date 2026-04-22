@@ -1,8 +1,8 @@
 package service
 
 import (
-	"profile-service/internal/repository"
 	"context"
+	"profile-service/internal/repository"
 )
 
 type Service struct {

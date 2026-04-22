@@ -27,8 +27,8 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 }
 func (ps *Repository) CreatePublication(ctx context.Context, pubReq PublicationRequest) (*Publication, error) {
 	pub := Publication{
-		ID: uuid.New().String(),
-		Text: pubReq.Text,
+		ID:     uuid.New().String(),
+		Text:   pubReq.Text,
 		UserID: pubReq.UserID,
 	}
 	row := ps.DB.QueryRow(
@@ -53,22 +53,22 @@ func (ps *Repository) GetFeed(ctx context.Context) ([]Publication, error) {
 		FROM publications
 		ORDER BY time_created DESC`,
 	)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	
+
 	var pubs []Publication
-	for rows.Next(){
+	for rows.Next() {
 		var pub Publication
 		err := rows.Scan(&pub.ID, &pub.Text, &pub.UserID, &pub.TimeCreated)
-		if err != nil{
+		if err != nil {
 			return nil, err
 		}
 		pubs = append(pubs, pub)
 	}
 
-	if err = rows.Err(); err != nil{
+	if err = rows.Err(); err != nil {
 		return nil, err
 	}
 
@@ -84,22 +84,22 @@ func (ps *Repository) GetPublicationsByUser(ctx context.Context, userID string) 
 		ORDER BY time_created DESC`,
 		userID,
 	)
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	
+
 	var pubs []Publication
-	for rows.Next(){
+	for rows.Next() {
 		var pub Publication
 		err := rows.Scan(&pub.ID, &pub.Text, &pub.UserID, &pub.TimeCreated)
-		if err != nil{
+		if err != nil {
 			return nil, err
 		}
 		pubs = append(pubs, pub)
 	}
 
-	if err = rows.Err(); err != nil{
+	if err = rows.Err(); err != nil {
 		return nil, err
 	}
 

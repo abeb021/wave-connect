@@ -5,8 +5,8 @@ import (
 	"errors"
 	"strings"
 
-	"profile-service/usecases"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"profile-service/usecases"
 )
 
 func NewPool(ctx context.Context, dbURL string) (*pgxpool.Pool, error) {

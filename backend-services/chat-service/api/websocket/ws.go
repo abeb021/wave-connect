@@ -23,16 +23,16 @@ func NewWSHandler(srv *service.Service, hub *Hub) *WSHandler {
 	return &WSHandler{Srv: srv, Hub: hub}
 }
 
-func (ws *WSHandler) ServeWS(w http.ResponseWriter, r *http.Request){
+func (ws *WSHandler) ServeWS(w http.ResponseWriter, r *http.Request) {
 	userID := r.Header.Get("X-User-ID")
-	if userID == ""{
+	if userID == "" {
 		http.Error(w, "missing user id", http.StatusUnauthorized)
 		return
 	}
 
 	// upgrade http to ws
 	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil{
+	if err != nil {
 		http.Error(w, "upgrade failed", http.StatusBadRequest)
 		return
 	}

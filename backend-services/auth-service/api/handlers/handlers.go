@@ -66,7 +66,7 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) GetUserById(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
-	
+
 	usrResponse, err := h.Srv.GetUserById(r.Context(), id)
 	if err != nil {
 		if err == usecases.ErrUserNotFound {

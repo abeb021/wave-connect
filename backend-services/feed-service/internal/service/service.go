@@ -1,8 +1,8 @@
 package service
 
 import (
-	"feed-service/internal/repository"
 	"context"
+	"feed-service/internal/repository"
 )
 
 type Service struct {
@@ -19,14 +19,13 @@ func (s *Service) CreatePublication(ctx context.Context, pubReq repository.Publi
 	return s.Repo.CreatePublication(ctx, pubReq)
 }
 
-func (s *Service) GetFeed(ctx context.Context) ([]repository.Publication, error){
+func (s *Service) GetFeed(ctx context.Context) ([]repository.Publication, error) {
 	return s.Repo.GetFeed(ctx)
 }
 
-func (s *Service) GetPublicationsByUser(ctx context.Context, userId string) ([]repository.Publication, error){
+func (s *Service) GetPublicationsByUser(ctx context.Context, userId string) ([]repository.Publication, error) {
 	return s.Repo.GetPublicationsByUser(ctx, userId)
 }
-
 
 func (s *Service) GetPublication(ctx context.Context, id string) (*repository.Publication, error) {
 	return s.Repo.GetPublication(ctx, id)

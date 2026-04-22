@@ -45,7 +45,7 @@ func (h *Handler) GetFeed(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if pubs == nil{
+	if pubs == nil {
 		pubs = []repository.Publication{}
 	}
 
@@ -56,10 +56,10 @@ func (h *Handler) GetFeed(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GetPublicationsByUser(w http.ResponseWriter, r *http.Request) {
 	userID := r.PathValue("userID")
 
-	if userID == ""{
-        http.Error(w, "user id is required", http.StatusBadRequest)
-        return
-    }
+	if userID == "" {
+		http.Error(w, "user id is required", http.StatusBadRequest)
+		return
+	}
 
 	pubs, err := h.Srv.GetPublicationsByUser(r.Context(), userID)
 	if err != nil {
@@ -67,14 +67,13 @@ func (h *Handler) GetPublicationsByUser(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	if pubs == nil{
+	if pubs == nil {
 		pubs = []repository.Publication{}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(pubs)
 }
-
 
 func (h *Handler) GetPublication(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")

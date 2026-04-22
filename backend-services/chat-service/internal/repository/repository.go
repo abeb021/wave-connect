@@ -28,10 +28,10 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 
 func (ps *Repository) CreateMessage(ctx context.Context, msgReq *MessageRequest) (*Message, error) {
 	msg := Message{
-		ID: uuid.New().String(),
-		Text: msgReq.Text,
+		ID:       uuid.New().String(),
+		Text:     msgReq.Text,
 		Receiver: msgReq.Receiver,
-		Sender: msgReq.Sender,
+		Sender:   msgReq.Sender,
 	}
 	row := ps.DB.QueryRow(
 		ctx,
@@ -55,26 +55,26 @@ func (ps *Repository) GetConversation(ctx context.Context, senderID string) ([]M
 		 FROM messages
 		 WHERE sender = $1  OR receiver = $1
 		 ORDER BY time_sent ASC;`,
-		 senderID,
+		senderID,
 	)
 
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
 	var msgs []Message
 
-	for rows.Next(){
+	for rows.Next() {
 		var msg Message
 		err := rows.Scan(&msg.ID, &msg.Text, &msg.Sender, &msg.Receiver, &msg.TimeSent)
-		if err != nil{
+		if err != nil {
 			return nil, err
 		}
 		msgs = append(msgs, msg)
 	}
 
-	if err = rows.Err(); err != nil{
+	if err = rows.Err(); err != nil {
 		return nil, err
 	}
 
@@ -89,32 +89,31 @@ func (ps *Repository) GetConversationWithPeer(ctx context.Context, senderID, rec
 		 WHERE (sender = $1 AND receiver = $2)
    		 OR (sender = $2 AND receiver = $1)
 		 ORDER BY time_sent ASC;`,
-		 senderID, receiverID,
+		senderID, receiverID,
 	)
 
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
 	var msgs []Message
 
-	for rows.Next(){
+	for rows.Next() {
 		var msg Message
 		err := rows.Scan(&msg.ID, &msg.Text, &msg.Sender, &msg.Receiver, &msg.TimeSent)
-		if err != nil{
+		if err != nil {
 			return nil, err
 		}
 		msgs = append(msgs, msg)
 	}
 
-	if err = rows.Err(); err != nil{
+	if err = rows.Err(); err != nil {
 		return nil, err
 	}
 
 	return msgs, nil
 }
-
 
 func (ps *Repository) GetMessage(ctx context.Context, id string) (Message, error) {
 

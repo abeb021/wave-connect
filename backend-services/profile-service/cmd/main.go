@@ -1,16 +1,16 @@
 package main
 
 import (
-	"profile-service/api/http/handlers"
-	"profile-service/api/http/middleware"
-	"profile-service/internal/config"
-	"profile-service/internal/repository"
-	"profile-service/internal/service"
 	"context"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"profile-service/api/http/handlers"
+	"profile-service/api/http/middleware"
+	"profile-service/internal/config"
+	"profile-service/internal/repository"
+	"profile-service/internal/service"
 	"syscall"
 
 	"github.com/golang-migrate/migrate/v4"

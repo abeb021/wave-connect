@@ -32,7 +32,7 @@ func Load() *Config {
 	// v.SetDefault("DB_NAME", "feed_db")
 	// v.SetDefault("DB_USER", "feed_user")
 	// v.SetDefault("DB_PASSWORD", "password")
-	 v.SetDefault("DB_SSLMODE", "disable")
+	v.SetDefault("DB_SSLMODE", "disable")
 
 	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); !ok {

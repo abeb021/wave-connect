@@ -1,12 +1,12 @@
 package main
 
 import (
+	"context"
 	"feed-service/api/handlers"
 	"feed-service/api/middleware"
 	"feed-service/internal/config"
 	"feed-service/internal/repository"
 	"feed-service/internal/service"
-	"context"
 	"log"
 	"net/http"
 	"os"

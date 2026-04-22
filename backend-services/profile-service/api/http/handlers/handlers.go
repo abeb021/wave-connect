@@ -18,10 +18,9 @@ func NewHandler(srv *service.Service) *Handler {
 	return &Handler{Srv: srv}
 }
 
-func (h *Handler)RegisterRoutes(r *http.ServeMux) {
+func (h *Handler) RegisterRoutes(r *http.ServeMux) {
 	r.HandleFunc("POST /api/profile", h.CreateProfile)
 }
-
 
 func (h *Handler) CreateProfile(w http.ResponseWriter, r *http.Request) {
 	var profReq repository.CreateProfileRequest

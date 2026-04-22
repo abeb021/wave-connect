@@ -2,8 +2,8 @@ package main
 
 import (
 	"chat-service/api/handlers"
-	"chat-service/api/websocket"
 	"chat-service/api/middleware"
+	"chat-service/api/websocket"
 	"chat-service/internal/config"
 	"chat-service/internal/repository"
 	"chat-service/internal/service"
@@ -64,7 +64,7 @@ func main() {
 	r.HandleFunc("PUT /api/chat/{id}", h.UpdateMessage)
 	r.HandleFunc("DELETE /api/chat/{id}", h.DeleteMessage)
 
-	//WebSocket implementation in dev 
+	//WebSocket implementation in dev
 	r.HandleFunc("GET /api/chat/ws", ws.ServeWS)
 
 	GlobalMiddleware := middleware.Chain(
