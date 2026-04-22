@@ -28,7 +28,7 @@ func (a *AuthService) GenerateToken(userID, email string) (string, error) {
 			Audience:  []string{"wave-connect"},
 			IssuedAt:  jwt.NewNumericDate(time.Now()),
 			NotBefore: jwt.NewNumericDate(time.Now()),
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 24)),
 			ID:        "",
 		},
 	}

@@ -27,7 +27,7 @@ func (h *Handler) CreatePublication(w http.ResponseWriter, r *http.Request) {
 
 	pubReq.UserID = r.Header.Get("X-User-ID")
 
-	pub, err := h.Srv.CreatePublication(r.Context(), pubReq)
+	pub, err := h.Srv.CreatePublication(r.Context(), &pubReq)
 
 	if err != nil {
 		http.Error(w, "failed to create publication", http.StatusInternalServerError)
@@ -35,6 +35,7 @@ func (h *Handler) CreatePublication(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(pub)
 }
 
@@ -131,6 +132,75 @@ func (h *Handler) DeletePublication(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		http.Error(w, "failed to delete publication", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+
+//COMMENTS
+func (h *Handler) CreateComment(w http.ResponseWriter, r *http.Request) {
+	var commentReq repository.CommentRequest
+	err := json.NewDecoder(r.Body).Decode(&commentReq)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	commentReq.UserID = r.Header.Get("X-User-ID")
+	commentReq.PubID = r.PathValue("pubID")
+
+	comment, err := h.Srv.CreateComment(r.Context(), &commentReq)
+
+	if err != nil {
+		if err.Error() == "Publication not found" {
+			http.Error(w, "Publication not found", http.StatusNotFound)
+			return
+		}
+		http.Error(w, "failed to create comment", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(comment)
+}
+
+func (h *Handler) GetCommentsByPublication(w http.ResponseWriter, r *http.Request) {
+	pubID := r.PathValue("pubID")
+
+	if pubID == "" {
+		http.Error(w, "publication id is required", http.StatusBadRequest)
+		return
+	}
+
+	comments, err := h.Srv.GetCommentsByPublication(r.Context(), pubID)
+	if err != nil {
+		http.Error(w, "failed to get comments", http.StatusInternalServerError)
+		return
+	}
+
+	if comments == nil {
+		comments = []repository.Comment{}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(comments)
+}
+
+func (h *Handler) DeleteComment(w http.ResponseWriter, r *http.Request) {
+	id := r.PathValue("id")
+	userID := r.Header.Get("X-User-ID")
+
+	err := h.Srv.DeleteComment(r.Context(), id, userID)
+
+	if err != nil {
+		if err.Error() == "ID not found" {
+			http.Error(w, "ID not found", http.StatusNotFound)
+			return
+		}
+		http.Error(w, "failed to delete comment", http.StatusInternalServerError)
 		return
 	}
 

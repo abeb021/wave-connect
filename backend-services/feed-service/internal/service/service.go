@@ -15,7 +15,7 @@ func NewService(repo *repository.Repository) *Service {
 	}
 }
 
-func (s *Service) CreatePublication(ctx context.Context, pubReq repository.PublicationRequest) (*repository.Publication, error) {
+func (s *Service) CreatePublication(ctx context.Context, pubReq *repository.PublicationRequest) (*repository.Publication, error) {
 	return s.Repo.CreatePublication(ctx, pubReq)
 }
 
@@ -33,10 +33,19 @@ func (s *Service) GetPublication(ctx context.Context, id string) (*repository.Pu
 
 func (s *Service) UpdatePublication(ctx context.Context, id, text, userID string) error {
 	return s.Repo.UpdatePublication(ctx, id, text, userID)
-
 }
 
 func (s *Service) DeletePublication(ctx context.Context, id, userID string) error {
 	return s.Repo.DeletePublication(ctx, id, userID)
+}
 
+func (s *Service) CreateComment(ctx context.Context, commentReq *repository.CommentRequest) (*repository.Comment, error){
+	return s.Repo.CreateComment(ctx, commentReq)
+}
+
+func (s *Service) GetCommentsByPublication(ctx context.Context, pubID string) ([]repository.Comment, error){
+	return s.Repo.GetCommentsByPublication(ctx, pubID)
+}
+func (s *Service) DeleteComment(ctx context.Context, id, userID string) error{
+	return s.Repo.DeleteComment(ctx, id, userID)
 }

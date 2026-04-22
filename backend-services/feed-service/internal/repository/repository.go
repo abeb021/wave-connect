@@ -25,7 +25,7 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 		DB: db,
 	}
 }
-func (ps *Repository) CreatePublication(ctx context.Context, pubReq PublicationRequest) (*Publication, error) {
+func (ps *Repository) CreatePublication(ctx context.Context, pubReq *PublicationRequest) (*Publication, error) {
 	pub := Publication{
 		ID:     uuid.New().String(),
 		Text:   pubReq.Text,
@@ -148,6 +148,80 @@ func (ps *Repository) DeletePublication(ctx context.Context, id, userID string) 
 	ct, err := ps.DB.Exec(
 		ctx,
 		`DELETE FROM publications 
+		 WHERE id=$1 AND user_id = $2`,
+		id, userID,
+	)
+
+	if err != nil {
+		return err
+	}
+	if ct.RowsAffected() == 0 {
+		return errors.New("ID not found")
+	}
+
+	return nil
+}
+
+//COMMENTS
+
+func (ps *Repository) CreateComment(ctx context.Context, commentReq *CommentRequest) (*Comment, error) {
+	comment := Comment{
+		ID:     uuid.New().String(),
+		PubID:  commentReq.PubID,
+		Text:   commentReq.Text,
+		UserID: commentReq.UserID,
+	}
+	row := ps.DB.QueryRow(
+		ctx,
+		`INSERT INTO comments (id, pub_id, text, user_id)
+	 	 VALUES ($1, $2, $3, $4)
+	 	 RETURNING time_created`,
+		comment.ID, comment.PubID, comment.Text, comment.UserID,
+	)
+
+	if err := row.Scan(&comment.TimeCreated); err != nil {
+		return nil, err
+	}
+
+	return &comment, nil
+}
+
+func (ps *Repository) GetCommentsByPublication(ctx context.Context, pubID string) ([]Comment, error) {
+	rows, err := ps.DB.Query(
+		ctx,
+		`SELECT id, pub_id, text, user_id, time_created
+		 FROM comments
+		 WHERE pub_id = $1
+	 	 ORDER BY time_created DESC`,
+		 pubID,
+	)
+
+	if err != nil{
+		return nil, err
+	}
+	defer rows.Close()
+
+	var comments []Comment
+	for rows.Next(){
+		var comment Comment
+		err := rows.Scan(&comment.ID, &comment.PubID, &comment.Text, &comment.UserID, &comment.TimeCreated)
+		if err != nil{
+			return nil, err
+		}
+		comments = append(comments, comment)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return comments, nil
+}
+
+func (ps *Repository) DeleteComment(ctx context.Context, id, userID string) error {
+	ct, err := ps.DB.Exec(
+		ctx,
+		`DELETE FROM comments 
 		 WHERE id=$1 AND user_id = $2`,
 		id, userID,
 	)

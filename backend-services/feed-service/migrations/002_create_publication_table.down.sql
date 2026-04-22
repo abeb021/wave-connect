@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS publications;
+DROP TABLE IF EXISTS comments;
