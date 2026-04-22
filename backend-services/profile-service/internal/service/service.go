@@ -29,5 +29,12 @@ func (s *Service) UpdateProfile(ctx context.Context, prof *repository.Profile) e
 
 func (s *Service) DeleteProfile(ctx context.Context, id string) error {
 	return s.Repo.DeleteProfile(ctx, id)
+}
 
+func (s *Service) UpdateAvatar(ctx context.Context, id string, data []byte) error {
+	return s.Repo.UpdateAvatar(ctx, id, data)
+}
+
+func (s *Service) GetAvatar(ctx context.Context, id string) ([]byte, error) {
+	return s.Repo.GetAvatar(ctx, id)
 }

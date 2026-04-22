@@ -5,8 +5,9 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/jackc/pgx/v5/pgxpool"
 	"profile-service/usecases"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 func NewPool(ctx context.Context, dbURL string) (*pgxpool.Pool, error) {
@@ -55,12 +56,12 @@ func (ps *Repository) GetProfile(ctx context.Context, user_id string) (*Profile,
 
 	row := ps.DB.QueryRow(
 		ctx,
-		`SELECT id, username, time_created
+		`SELECT id, username, bio, time_created
 		 FROM profiles 
 		 WHERE id = $1`,
 		user_id)
 
-	err := row.Scan(&prof.ID, &prof.Username, &prof.TimeCreated)
+	err := row.Scan(&prof.ID, &prof.Username, &prof.Bio, &prof.TimeCreated)
 	if err != nil {
 		return nil, err
 	}
@@ -105,4 +106,36 @@ func (ps *Repository) DeleteProfile(ctx context.Context, id string) error {
 	}
 
 	return nil
+}
+
+func (ps *Repository) UpdateAvatar(ctx context.Context, userID string, data []byte) error{
+	_, err := ps.DB.Exec(ctx,
+		`UPDATE profiles
+		 SET avatar = $1
+		 WHERE id = $2`,
+		data, userID,
+	)
+
+	if err != nil{
+		return err
+	}
+	return nil
+}
+
+
+func (ps *Repository) GetAvatar(ctx context.Context, userID string) ([]byte, error) {
+	row := ps.DB.QueryRow(
+		ctx,
+		`SELECT avatar
+		 FROM profiles 
+		 WHERE id = $1`,
+		userID,
+	)
+	var imgBytes []byte
+	err := row.Scan(&imgBytes)
+	if err != nil {
+		return nil, err
+	}
+
+	return imgBytes, nil
 }

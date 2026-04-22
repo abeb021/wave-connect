@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"profile-service/internal/repository"
 	"profile-service/internal/service"
@@ -90,7 +91,6 @@ func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusNoContent)
-
 }
 
 func (h *Handler) DeleteProfile(w http.ResponseWriter, r *http.Request) {
@@ -108,4 +108,49 @@ func (h *Handler) DeleteProfile(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *Handler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
+	userID := r.Header.Get("X-User-ID")
+
+	r.Body = http.MaxBytesReader(w, r.Body, 5 << 20)
+
+	data, err := io.ReadAll(r.Body)
+	if err != nil{
+		http.Error(w, "File too large or read error", http.StatusRequestEntityTooLarge)
+		return
+	}
+
+	err = h.Srv.UpdateAvatar(r.Context(), userID, data)
+
+	if err != nil {
+		if err.Error() == "ID/Username not found" {
+			http.Error(w, "ID/Username not found", http.StatusNotFound)
+			return
+		}
+		http.Error(w, "failed to update avatar", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+func (h *Handler) GetAvatar(w http.ResponseWriter, r *http.Request) {
+	userID := r.Header.Get("X-User-ID")
+
+	avatar, err := h.Srv.GetAvatar(r.Context(), userID)
+
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			http.Error(w, "ID not found", http.StatusNotFound)
+			return
+		}
+		http.Error(w, "failed to get avatar", http.StatusInternalServerError)
+		return
+	}
+	
+	w.Header().Set("Cache-Control", "public, max-age=86400") 
+
+	w.Header().Set("Content-Type", "image/jpeg")
+	w.Write(avatar)
 }
