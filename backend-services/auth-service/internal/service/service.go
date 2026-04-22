@@ -30,7 +30,6 @@ func (s *Service) Register(ctx context.Context, usrRequest *repository.UserReque
 	}
 	usr := &repository.UserDB{
 		ID:           uuid.New().String(),
-		Username:     usrRequest.Username,
 		Email:        usrRequest.Email,
 		PasswordHASH: hashedPassword,
 		CreatedAt:    time.Now(),
@@ -45,7 +44,7 @@ func (s *Service) Register(ctx context.Context, usrRequest *repository.UserReque
 }
 
 func (s *Service) Login(ctx context.Context, usrRequest *repository.UserRequest) (string, error) {
-	usrDB, err := s.Repo.Login(ctx, usrRequest.Username)
+	usrDB, err := s.Repo.Login(ctx, usrRequest.Email)
 	if err != nil {
 		return "", err
 	}
@@ -65,10 +64,6 @@ func (s *Service) Login(ctx context.Context, usrRequest *repository.UserRequest)
 
 func (s *Service) GetUserById(ctx context.Context, id string) (*repository.UserResponse, error) {
 	return s.Repo.GetUserById(ctx, id)
-}
-
-func (s *Service) GetUserByUsername(ctx context.Context, username string) (*repository.UserResponse, error) {
-	return s.Repo.GetUserByUsername(ctx, username)
 }
 
 func (s *Service) DeleteUser(ctx context.Context, id string) error {

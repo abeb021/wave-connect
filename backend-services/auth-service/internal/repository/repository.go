@@ -31,9 +31,9 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 func (ps *Repository) Register(ctx context.Context, usr *UserDB) (*UserResponse, error) {
 	_, err := ps.DB.Exec(
 		ctx,
-		`INSERT INTO users (id, username, email, password_hash)
-	 	 VALUES ($1, $2, $3, $4)`,
-		usr.ID, usr.Username, usr.Email, usr.PasswordHASH,
+		`INSERT INTO users (id, email, password_hash)
+	 	 VALUES ($1, $2, $3)`,
+		usr.ID, usr.Email, usr.PasswordHASH,
 	)
 
 	if err != nil {
@@ -44,7 +44,6 @@ func (ps *Repository) Register(ctx context.Context, usr *UserDB) (*UserResponse,
 	}
 	usrResponse := UserResponse{
 		ID:        usr.ID,
-		Username:  usr.Username,
 		Email:     usr.Email,
 		CreatedAt: usr.CreatedAt,
 	}
@@ -60,14 +59,14 @@ func (ps *Repository) Login(ctx context.Context, identifier string) (*UserDB, er
 	var usrDB UserDB
 	row := ps.DB.QueryRow(
 		ctx,
-		`SELECT id, username, email, password_hash
+		`SELECT id, email, password_hash
          FROM users 
-         WHERE username = $1 OR email = $1
+         WHERE email = $1
          LIMIT 1`,
 		identifier,
 	)
 
-	err := row.Scan(&usrDB.ID, &usrDB.Username, &usrDB.Email, &usrDB.PasswordHASH)
+	err := row.Scan(&usrDB.ID, &usrDB.Email, &usrDB.PasswordHASH)
 
 	if err != nil {
 		if err == pgx.ErrNoRows {
@@ -84,33 +83,12 @@ func (ps *Repository) GetUserById(ctx context.Context, id string) (*UserResponse
 
 	row := ps.DB.QueryRow(
 		ctx,
-		`SELECT id, username, email, created_at
+		`SELECT id, email, created_at
 		 FROM users 
 		 WHERE id = $1`,
 		id)
 
-	err := row.Scan(&usr.ID, &usr.Username, &usr.Email, &usr.CreatedAt)
-	if err != nil {
-		if err == pgx.ErrNoRows {
-			return nil, usecases.ErrUserNotFound
-		}
-		return nil, err
-	}
-
-	return usr, nil
-}
-
-func (ps *Repository) GetUserByUsername(ctx context.Context, username string) (*UserResponse, error) {
-	usr := &UserResponse{}
-
-	row := ps.DB.QueryRow(
-		ctx,
-		`SELECT id, username, email, created_at
-		 FROM users 
-		 WHERE username = $1`,
-		username)
-
-	err := row.Scan(&usr.ID, &usr.Username, &usr.Email, &usr.CreatedAt)
+	err := row.Scan(&usr.ID, &usr.Email, &usr.CreatedAt)
 	if err != nil {
 		if err == pgx.ErrNoRows {
 			return nil, usecases.ErrUserNotFound

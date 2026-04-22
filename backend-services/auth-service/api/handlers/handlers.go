@@ -65,7 +65,11 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetUserById(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
+	id := r.Header.Get("X-User-ID")
+	if id == ""{
+		http.Error(w, "missing user id", http.StatusUnauthorized)
+		return
+	}
 
 	usrResponse, err := h.Srv.GetUserById(r.Context(), id)
 	if err != nil {
@@ -82,27 +86,13 @@ func (h *Handler) GetUserById(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(usrResponse)
 }
 
-func (h *Handler) GetUserByUsername(w http.ResponseWriter, r *http.Request) {
-	username := r.PathValue("username")
-
-	usrResponse, err := h.Srv.GetUserByUsername(r.Context(), username)
-	if err != nil {
-		if err == usecases.ErrUserNotFound {
-			http.Error(w, usecases.ErrUserNotFound.Error(), http.StatusNotFound)
-			return
-		}
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
+	id := r.Header.Get("X-User-ID")
+	if id == ""{
+		http.Error(w, "missing user id", http.StatusUnauthorized)
 		return
 	}
-
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusAccepted)
-	json.NewEncoder(w).Encode(usrResponse)
-}
-
-func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
-	id := r.PathValue("id")
-
+	
 	err := h.Srv.DeleteUser(r.Context(), id)
 	if err != nil {
 		if err == usecases.ErrUserNotFound {

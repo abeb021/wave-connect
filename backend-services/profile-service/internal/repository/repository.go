@@ -72,10 +72,11 @@ func (ps *Repository) UpdateProfile(ctx context.Context, prof *Profile) error {
 	ct, err := ps.DB.Exec(
 		ctx,
 		`UPDATE profiles
-		 SET username = $1
-		 WHERE id = $2
+		 SET username = $1,
+		 SET bio = $2
+		 WHERE id = $3
 		 `,
-		prof.Username, prof.ID,
+		prof.Username, prof.Bio, prof.ID,
 	)
 
 	if err != nil {

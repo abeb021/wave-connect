@@ -55,9 +55,8 @@ func main() {
 
 	r.HandleFunc("POST /api/auth/register", h.Register)
 	r.HandleFunc("POST /api/auth/login", h.Login)
-	r.HandleFunc("GET /api/auth/id/{id}", h.GetUserById)
-	r.HandleFunc("GET /api/auth/username/{username}", h.GetUserByUsername)
-	r.HandleFunc("DELETE /api/auth/{id}", h.DeleteUser)
+	r.HandleFunc("GET /api/auth/id/", h.GetUserById)
+	r.HandleFunc("DELETE /api/auth/", h.DeleteUser)
 
 	GlobalMiddleware := middleware.Chain(
 		middleware.LoggingMiddleware,
