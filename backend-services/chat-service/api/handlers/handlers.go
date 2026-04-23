@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"chat-service/internal/repository"
+	"chat-service/internal/domain"
 	"chat-service/internal/service"
 	"encoding/json"
 	"net/http"
@@ -18,7 +18,7 @@ func NewHandler(srv *service.Service) *Handler {
 }
 
 func (h *Handler) CreateMessage(w http.ResponseWriter, r *http.Request) {
-	var msgReq repository.MessageRequest
+	var msgReq domain.MessageRequest
 	err := json.NewDecoder(r.Body).Decode(&msgReq)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -52,7 +52,7 @@ func (h *Handler) GetConversation(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if conv == nil {
-		conv = []repository.Message{}
+		conv = []domain.Message{}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -75,7 +75,7 @@ func (h *Handler) GetConversationWithPeer(w http.ResponseWriter, r *http.Request
 	}
 
 	if conv == nil {
-		conv = []repository.Message{}
+		conv = []domain.Message{}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -103,7 +103,7 @@ func (h *Handler) GetMessage(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) UpdateMessage(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
-	var msg repository.Message
+	var msg domain.Message
 	if decodeErr := json.NewDecoder(r.Body).Decode(&msg); decodeErr != nil {
 		http.Error(w, decodeErr.Error(), http.StatusBadRequest)
 		return

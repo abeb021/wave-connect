@@ -2,7 +2,9 @@ package repository
 
 import (
 	"context"
-	"errors"
+	"errors"		
+	"chat-service/internal/domain"
+
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -26,8 +28,8 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 	}
 }
 
-func (ps *Repository) CreateMessage(ctx context.Context, msgReq *MessageRequest) (*Message, error) {
-	msg := Message{
+func (ps *Repository) CreateMessage(ctx context.Context, msgReq *domain.MessageRequest) (*domain.Message, error) {
+	msg := domain.Message{
 		ID:       uuid.New().String(),
 		Text:     msgReq.Text,
 		Receiver: msgReq.Receiver,
@@ -48,7 +50,7 @@ func (ps *Repository) CreateMessage(ctx context.Context, msgReq *MessageRequest)
 	return &msg, nil
 }
 
-func (ps *Repository) GetConversation(ctx context.Context, senderID string) ([]Message, error) {
+func (ps *Repository) GetConversation(ctx context.Context, senderID string) ([]domain.Message, error) {
 	rows, err := ps.DB.Query(
 		ctx,
 		`SELECT id, text, sender, receiver, time_sent
@@ -63,10 +65,10 @@ func (ps *Repository) GetConversation(ctx context.Context, senderID string) ([]M
 	}
 	defer rows.Close()
 
-	var msgs []Message
+	var msgs []domain.Message
 
 	for rows.Next() {
-		var msg Message
+		var msg domain.Message
 		err := rows.Scan(&msg.ID, &msg.Text, &msg.Sender, &msg.Receiver, &msg.TimeSent)
 		if err != nil {
 			return nil, err
@@ -81,7 +83,7 @@ func (ps *Repository) GetConversation(ctx context.Context, senderID string) ([]M
 	return msgs, nil
 }
 
-func (ps *Repository) GetConversationWithPeer(ctx context.Context, senderID, receiverID string) ([]Message, error) {
+func (ps *Repository) GetConversationWithPeer(ctx context.Context, senderID, receiverID string) ([]domain.Message, error) {
 	rows, err := ps.DB.Query(
 		ctx,
 		`SELECT id, text, sender, receiver, time_sent
@@ -97,10 +99,9 @@ func (ps *Repository) GetConversationWithPeer(ctx context.Context, senderID, rec
 	}
 	defer rows.Close()
 
-	var msgs []Message
-
+	var msgs []domain.Message
 	for rows.Next() {
-		var msg Message
+		var msg domain.Message
 		err := rows.Scan(&msg.ID, &msg.Text, &msg.Sender, &msg.Receiver, &msg.TimeSent)
 		if err != nil {
 			return nil, err
@@ -115,9 +116,9 @@ func (ps *Repository) GetConversationWithPeer(ctx context.Context, senderID, rec
 	return msgs, nil
 }
 
-func (ps *Repository) GetMessage(ctx context.Context, id string) (Message, error) {
+func (ps *Repository) GetMessage(ctx context.Context, id string) (domain.Message, error) {
 
-	var msg Message
+	var msg domain.Message
 
 	row := ps.DB.QueryRow(
 		ctx,
@@ -128,7 +129,7 @@ func (ps *Repository) GetMessage(ctx context.Context, id string) (Message, error
 
 	err := row.Scan(&msg.ID, &msg.Text, &msg.Sender, &msg.Receiver, &msg.TimeSent)
 	if err != nil {
-		return Message{}, err
+		return domain.Message{}, err
 	}
 
 	return msg, nil

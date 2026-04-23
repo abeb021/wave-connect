@@ -1,7 +1,7 @@
 package websocket
 
 import (
-	"chat-service/internal/repository"
+	"chat-service/internal/domain"
 	"chat-service/internal/service"
 	"context"
 	"encoding/json"
@@ -77,7 +77,7 @@ func (c *Client) handleMessage(msg []byte) {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 
-		saved, err := c.Srv.CreateMessage(ctx, &repository.MessageRequest{
+		saved, err := c.Srv.CreateMessage(ctx, &domain.MessageRequest{
 			Text:     p.Text,
 			Receiver: p.Receiver,
 			Sender:   c.UserID,
