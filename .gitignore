@@ -1,6 +1,7 @@
 
 *
-!backend-service/**
+!backend-services/**
+!backend-services/
 
 !.gitignore
 !.gitattributes

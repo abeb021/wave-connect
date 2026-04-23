@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
-	"profile-service/internal/repository"
 	"profile-service/internal/service"
+	
+	"profile-service/internal/domain"
 	"profile-service/usecases"
 
 	"github.com/jackc/pgx/v5"
@@ -24,7 +25,7 @@ func (h *Handler) RegisterRoutes(r *http.ServeMux) {
 }
 
 func (h *Handler) CreateProfile(w http.ResponseWriter, r *http.Request) {
-	var profReq repository.CreateProfileRequest
+	var profReq domain.CreateProfileRequest
 	err := json.NewDecoder(r.Body).Decode(&profReq)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -71,7 +72,7 @@ func (h *Handler) GetProfile(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	userId := r.Header.Get("X-User-ID")
 
-	var prof repository.Profile
+	var prof domain.Profile
 	if decodeErr := json.NewDecoder(r.Body).Decode(&prof); decodeErr != nil {
 		http.Error(w, decodeErr.Error(), http.StatusBadRequest)
 		return

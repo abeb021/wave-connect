@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"profile-service/internal/repository"
+	"profile-service/internal/domain"
 )
 
 type Service struct {
@@ -15,15 +16,15 @@ func NewService(repo *repository.Repository) *Service {
 	}
 }
 
-func (s *Service) CreateProfile(ctx context.Context, profReq *repository.CreateProfileRequest, id string) (*repository.Profile, error) {
+func (s *Service) CreateProfile(ctx context.Context, profReq *domain.CreateProfileRequest, id string) (*domain.Profile, error) {
 	return s.Repo.CreateProfile(ctx, profReq, id)
 }
 
-func (s *Service) GetProfile(ctx context.Context, id string) (*repository.Profile, error) {
+func (s *Service) GetProfile(ctx context.Context, id string) (*domain.Profile, error) {
 	return s.Repo.GetProfile(ctx, id)
 }
 
-func (s *Service) UpdateProfile(ctx context.Context, prof *repository.Profile) error {
+func (s *Service) UpdateProfile(ctx context.Context, prof *domain.Profile) error {
 	return s.Repo.UpdateProfile(ctx, prof)
 }
 

@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"profile-service/usecases"
-
+	"profile-service/internal/domain"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -27,8 +27,8 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 		DB: db,
 	}
 }
-func (ps *Repository) CreateProfile(ctx context.Context, profReq *CreateProfileRequest, id string) (*Profile, error) {
-	prof := Profile{
+func (ps *Repository) CreateProfile(ctx context.Context, profReq *domain.CreateProfileRequest, id string) (*domain.Profile, error) {
+	prof := domain.Profile{
 		Username: profReq.Username,
 		ID:       id,
 	}
@@ -50,9 +50,9 @@ func (ps *Repository) CreateProfile(ctx context.Context, profReq *CreateProfileR
 	return &prof, nil
 }
 
-func (ps *Repository) GetProfile(ctx context.Context, user_id string) (*Profile, error) {
+func (ps *Repository) GetProfile(ctx context.Context, user_id string) (*domain.Profile, error) {
 
-	var prof Profile
+	var prof domain.Profile
 
 	row := ps.DB.QueryRow(
 		ctx,
@@ -69,7 +69,7 @@ func (ps *Repository) GetProfile(ctx context.Context, user_id string) (*Profile,
 	return &prof, nil
 }
 
-func (ps *Repository) UpdateProfile(ctx context.Context, prof *Profile) error {
+func (ps *Repository) UpdateProfile(ctx context.Context, prof *domain.Profile) error {
 	ct, err := ps.DB.Exec(
 		ctx,
 		`UPDATE profiles
