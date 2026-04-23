@@ -5,7 +5,6 @@ import (
 	"errors"
 	"strings"
 
-	"profile-service/usecases"
 	"profile-service/internal/domain"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
@@ -42,7 +41,7 @@ func (ps *Repository) CreateProfile(ctx context.Context, profReq *domain.CreateP
 
 	if err := row.Scan(&prof.TimeCreated); err != nil {
 		if strings.Contains(err.Error(), "duplicate") {
-			return nil, usecases.ErrUserTaken
+			return nil, domain.ErrUserTaken
 		}
 		return nil, err
 	}

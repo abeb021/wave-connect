@@ -7,7 +7,6 @@ import (
 	"profile-service/internal/service"
 	
 	"profile-service/internal/domain"
-	"profile-service/usecases"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -39,7 +38,7 @@ func (h *Handler) CreateProfile(w http.ResponseWriter, r *http.Request) {
 	}
 	prof, err := h.Srv.CreateProfile(r.Context(), &profReq, id)
 	if err != nil {
-		if err == usecases.ErrUserTaken {
+		if err == domain.ErrUserTaken {
 			http.Error(w, err.Error(), http.StatusConflict)
 			return
 		}
