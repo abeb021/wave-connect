@@ -38,7 +38,7 @@ func (h *Handler) CreateProfile(w http.ResponseWriter, r *http.Request) {
 	}
 	prof, err := h.Srv.CreateProfile(r.Context(), &profReq, id)
 	if err != nil {
-		if err == domain.ErrUserTaken {
+		if err == domain.ErrUsernameTaken {
 			http.Error(w, err.Error(), http.StatusConflict)
 			return
 		}
@@ -124,8 +124,8 @@ func (h *Handler) UpdateAvatar(w http.ResponseWriter, r *http.Request) {
 	err = h.Srv.UpdateAvatar(r.Context(), userID, data)
 
 	if err != nil {
-		if err.Error() == "ID/Username not found" {
-			http.Error(w, "ID/Username not found", http.StatusNotFound)
+		if err == domain.ErrProfileNotFound {
+			http.Error(w, "Profile not found", http.StatusNotFound)
 			return
 		}
 		http.Error(w, "failed to update avatar", http.StatusInternalServerError)

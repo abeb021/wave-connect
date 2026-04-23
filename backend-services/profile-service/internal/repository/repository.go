@@ -41,7 +41,7 @@ func (ps *Repository) CreateProfile(ctx context.Context, profReq *domain.CreateP
 
 	if err := row.Scan(&prof.TimeCreated); err != nil {
 		if strings.Contains(err.Error(), "duplicate") {
-			return nil, domain.ErrUserTaken
+			return nil, domain.ErrUsernameTaken
 		}
 		return nil, err
 	}
@@ -108,16 +108,22 @@ func (ps *Repository) DeleteProfile(ctx context.Context, id string) error {
 }
 
 func (ps *Repository) UpdateAvatar(ctx context.Context, userID string, data []byte) error{
-	_, err := ps.DB.Exec(ctx,
+	ct, err := ps.DB.Exec(ctx,
 		`UPDATE profiles
 		 SET avatar = $1
 		 WHERE id = $2`,
 		data, userID,
 	)
 
+	
 	if err != nil{
 		return err
 	}
+	
+	if ct.RowsAffected() == 0{
+		return domain.ErrProfileNotFound
+	}
+
 	return nil
 }
 
