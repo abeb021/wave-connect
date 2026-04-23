@@ -76,7 +76,7 @@ func (ps *Repository) GetProfileByUsername(ctx context.Context, username string)
 	row := ps.DB.QueryRow(
 		ctx,
 		`SELECT id, username, bio, time_created
-		 FROM users 
+		 FROM profiles 
 		 WHERE username = $1`,
 		username)
 
