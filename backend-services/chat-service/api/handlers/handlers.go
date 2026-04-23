@@ -114,8 +114,8 @@ func (h *Handler) UpdateMessage(w http.ResponseWriter, r *http.Request) {
 	err := h.Srv.UpdateMessage(r.Context(), id, msg.Text, msg.Sender)
 
 	if err != nil {
-		if err.Error() == "ID not found" {
-			http.Error(w, "ID not found", http.StatusNotFound)
+		if err == domain.ErrMessageNotFound {
+			http.Error(w, "message not found", http.StatusNotFound)
 			return
 		}
 		http.Error(w, "failed to update message", http.StatusInternalServerError)
@@ -133,8 +133,8 @@ func (h *Handler) DeleteMessage(w http.ResponseWriter, r *http.Request) {
 	err := h.Srv.DeleteMessage(r.Context(), id, senderID)
 
 	if err != nil {
-		if err.Error() == "ID not found" {
-			http.Error(w, "ID not found", http.StatusNotFound)
+		if err == domain.ErrMessageNotFound {
+			http.Error(w, "message not found", http.StatusNotFound)
 			return
 		}
 		http.Error(w, "failed to delete message", http.StatusInternalServerError)

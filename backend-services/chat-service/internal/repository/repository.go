@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"		
 	"chat-service/internal/domain"
 
 
@@ -149,7 +148,7 @@ func (ps *Repository) UpdateMessage(ctx context.Context, id, text, senderID stri
 		return err
 	}
 	if ct.RowsAffected() == 0 {
-		return errors.New("message not found")
+		return domain.ErrMessageNotFound
 	}
 
 	return nil
@@ -167,7 +166,7 @@ func (ps *Repository) DeleteMessage(ctx context.Context, id, senderID string) er
 		return err
 	}
 	if ct.RowsAffected() == 0 {
-		return errors.New("message not found")
+		return domain.ErrMessageNotFound
 	}
 
 	return nil
