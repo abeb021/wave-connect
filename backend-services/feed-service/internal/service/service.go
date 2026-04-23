@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"feed-service/internal/repository"
+	"feed-service/internal/domain"
 )
 
 type Service struct {
@@ -15,19 +16,19 @@ func NewService(repo *repository.Repository) *Service {
 	}
 }
 
-func (s *Service) CreatePublication(ctx context.Context, pubReq *repository.PublicationRequest) (*repository.Publication, error) {
+func (s *Service) CreatePublication(ctx context.Context, pubReq *domain.PublicationRequest) (*domain.Publication, error) {
 	return s.Repo.CreatePublication(ctx, pubReq)
 }
 
-func (s *Service) GetFeed(ctx context.Context) ([]repository.Publication, error) {
+func (s *Service) GetFeed(ctx context.Context) ([]domain.Publication, error) {
 	return s.Repo.GetFeed(ctx)
 }
 
-func (s *Service) GetPublicationsByUser(ctx context.Context, userId string) ([]repository.Publication, error) {
+func (s *Service) GetPublicationsByUser(ctx context.Context, userId string) ([]domain.Publication, error) {
 	return s.Repo.GetPublicationsByUser(ctx, userId)
 }
 
-func (s *Service) GetPublication(ctx context.Context, id string) (*repository.Publication, error) {
+func (s *Service) GetPublication(ctx context.Context, id string) (*domain.Publication, error) {
 	return s.Repo.GetPublication(ctx, id)
 }
 
@@ -39,11 +40,11 @@ func (s *Service) DeletePublication(ctx context.Context, id, userID string) erro
 	return s.Repo.DeletePublication(ctx, id, userID)
 }
 
-func (s *Service) CreateComment(ctx context.Context, commentReq *repository.CommentRequest) (*repository.Comment, error){
+func (s *Service) CreateComment(ctx context.Context, commentReq *domain.CommentRequest) (*domain.Comment, error){
 	return s.Repo.CreateComment(ctx, commentReq)
 }
 
-func (s *Service) GetCommentsByPublication(ctx context.Context, pubID string) ([]repository.Comment, error){
+func (s *Service) GetCommentsByPublication(ctx context.Context, pubID string) ([]domain.Comment, error){
 	return s.Repo.GetCommentsByPublication(ctx, pubID)
 }
 func (s *Service) DeleteComment(ctx context.Context, id, userID string) error{

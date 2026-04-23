@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
-	"feed-service/internal/repository"
+	"feed-service/internal/domain"
 	"feed-service/internal/service"
 	"net/http"
 
@@ -18,7 +18,7 @@ func NewHandler(srv *service.Service) *Handler {
 }
 
 func (h *Handler) CreatePublication(w http.ResponseWriter, r *http.Request) {
-	var pubReq repository.PublicationRequest
+	var pubReq domain.PublicationRequest
 	err := json.NewDecoder(r.Body).Decode(&pubReq)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -47,7 +47,7 @@ func (h *Handler) GetFeed(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if pubs == nil {
-		pubs = []repository.Publication{}
+		pubs = []domain.Publication{}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -69,7 +69,7 @@ func (h *Handler) GetPublicationsByUser(w http.ResponseWriter, r *http.Request) 
 	}
 
 	if pubs == nil {
-		pubs = []repository.Publication{}
+		pubs = []domain.Publication{}
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -97,7 +97,7 @@ func (h *Handler) GetPublication(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) UpdatePublication(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 
-	var pub repository.PublicationRequest
+	var pub domain.PublicationRequest
 	if decodeErr := json.NewDecoder(r.Body).Decode(&pub); decodeErr != nil {
 		http.Error(w, decodeErr.Error(), http.StatusBadRequest)
 		return
@@ -141,7 +141,7 @@ func (h *Handler) DeletePublication(w http.ResponseWriter, r *http.Request) {
 
 //COMMENTS
 func (h *Handler) CreateComment(w http.ResponseWriter, r *http.Request) {
-	var commentReq repository.CommentRequest
+	var commentReq domain.CommentRequest
 	err := json.NewDecoder(r.Body).Decode(&commentReq)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -182,7 +182,7 @@ func (h *Handler) GetCommentsByPublication(w http.ResponseWriter, r *http.Reques
 	}
 
 	if comments == nil {
-		comments = []repository.Comment{}
+		comments = []domain.Comment{}
 	}
 
 	w.Header().Set("Content-Type", "application/json")

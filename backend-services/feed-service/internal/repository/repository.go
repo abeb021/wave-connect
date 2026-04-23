@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"feed-service/internal/domain"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -25,8 +26,8 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 		DB: db,
 	}
 }
-func (ps *Repository) CreatePublication(ctx context.Context, pubReq *PublicationRequest) (*Publication, error) {
-	pub := Publication{
+func (ps *Repository) CreatePublication(ctx context.Context, pubReq *domain.PublicationRequest) (*domain.Publication, error) {
+	pub := domain.Publication{
 		ID:     uuid.New().String(),
 		Text:   pubReq.Text,
 		UserID: pubReq.UserID,
@@ -46,7 +47,7 @@ func (ps *Repository) CreatePublication(ctx context.Context, pubReq *Publication
 	return &pub, nil
 }
 
-func (ps *Repository) GetFeed(ctx context.Context) ([]Publication, error) {
+func (ps *Repository) GetFeed(ctx context.Context) ([]domain.Publication, error) {
 	rows, err := ps.DB.Query(
 		ctx,
 		`SELECT id, text, user_id, time_created
@@ -58,9 +59,9 @@ func (ps *Repository) GetFeed(ctx context.Context) ([]Publication, error) {
 	}
 	defer rows.Close()
 
-	var pubs []Publication
+	var pubs []domain.Publication
 	for rows.Next() {
-		var pub Publication
+		var pub domain.Publication
 		err := rows.Scan(&pub.ID, &pub.Text, &pub.UserID, &pub.TimeCreated)
 		if err != nil {
 			return nil, err
@@ -75,7 +76,7 @@ func (ps *Repository) GetFeed(ctx context.Context) ([]Publication, error) {
 	return pubs, nil
 }
 
-func (ps *Repository) GetPublicationsByUser(ctx context.Context, userID string) ([]Publication, error) {
+func (ps *Repository) GetPublicationsByUser(ctx context.Context, userID string) ([]domain.Publication, error) {
 	rows, err := ps.DB.Query(
 		ctx,
 		`SELECT id, text, user_id, time_created
@@ -89,9 +90,9 @@ func (ps *Repository) GetPublicationsByUser(ctx context.Context, userID string) 
 	}
 	defer rows.Close()
 
-	var pubs []Publication
+	var pubs []domain.Publication
 	for rows.Next() {
-		var pub Publication
+		var pub domain.Publication
 		err := rows.Scan(&pub.ID, &pub.Text, &pub.UserID, &pub.TimeCreated)
 		if err != nil {
 			return nil, err
@@ -106,8 +107,8 @@ func (ps *Repository) GetPublicationsByUser(ctx context.Context, userID string) 
 	return pubs, nil
 }
 
-func (ps *Repository) GetPublication(ctx context.Context, id string) (*Publication, error) {
-	var pub Publication
+func (ps *Repository) GetPublication(ctx context.Context, id string) (*domain.Publication, error) {
+	var pub domain.Publication
 
 	row := ps.DB.QueryRow(
 		ctx,
@@ -164,8 +165,8 @@ func (ps *Repository) DeletePublication(ctx context.Context, id, userID string) 
 
 //COMMENTS
 
-func (ps *Repository) CreateComment(ctx context.Context, commentReq *CommentRequest) (*Comment, error) {
-	comment := Comment{
+func (ps *Repository) CreateComment(ctx context.Context, commentReq *domain.CommentRequest) (*domain.Comment, error) {
+	comment := domain.Comment{
 		ID:     uuid.New().String(),
 		PubID:  commentReq.PubID,
 		Text:   commentReq.Text,
@@ -186,7 +187,7 @@ func (ps *Repository) CreateComment(ctx context.Context, commentReq *CommentRequ
 	return &comment, nil
 }
 
-func (ps *Repository) GetCommentsByPublication(ctx context.Context, pubID string) ([]Comment, error) {
+func (ps *Repository) GetCommentsByPublication(ctx context.Context, pubID string) ([]domain.Comment, error) {
 	rows, err := ps.DB.Query(
 		ctx,
 		`SELECT id, pub_id, text, user_id, time_created
@@ -201,9 +202,9 @@ func (ps *Repository) GetCommentsByPublication(ctx context.Context, pubID string
 	}
 	defer rows.Close()
 
-	var comments []Comment
+	var comments []domain.Comment
 	for rows.Next(){
-		var comment Comment
+		var comment domain.Comment
 		err := rows.Scan(&comment.ID, &comment.PubID, &comment.Text, &comment.UserID, &comment.TimeCreated)
 		if err != nil{
 			return nil, err
