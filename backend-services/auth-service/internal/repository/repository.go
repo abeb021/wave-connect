@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"auth-service/usecases"
+	"auth-service/internal/domain"
 	"context"
 	"strings"
 
@@ -28,7 +28,7 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 	}
 }
 
-func (ps *Repository) Register(ctx context.Context, usr *UserDB) (*UserResponse, error) {
+func (ps *Repository) Register(ctx context.Context, usr *domain.UserDB) (*domain.UserResponse, error) {
 	_, err := ps.DB.Exec(
 		ctx,
 		`INSERT INTO users (id, email, password_hash)
@@ -38,11 +38,11 @@ func (ps *Repository) Register(ctx context.Context, usr *UserDB) (*UserResponse,
 
 	if err != nil {
 		if strings.Contains(err.Error(), "duplicate") {
-			return nil, usecases.ErrUserTaken
+			return nil, domain.ErrUserTaken
 		}
 		return nil, err
 	}
-	usrResponse := UserResponse{
+	usrResponse := domain.UserResponse{
 		ID:        usr.ID,
 		Email:     usr.Email,
 		CreatedAt: usr.CreatedAt,
@@ -50,13 +50,13 @@ func (ps *Repository) Register(ctx context.Context, usr *UserDB) (*UserResponse,
 	return &usrResponse, nil
 }
 
-func (ps *Repository) Login(ctx context.Context, identifier string) (*UserDB, error) {
+func (ps *Repository) Login(ctx context.Context, identifier string) (*domain.UserDB, error) {
 
 	if strings.TrimSpace(identifier) == "" {
-		return nil, usecases.ErrUserNotFound
+		return nil, domain.ErrUserNotFound
 	}
 
-	var usrDB UserDB
+	var usrDB domain.UserDB
 	row := ps.DB.QueryRow(
 		ctx,
 		`SELECT id, email, password_hash
@@ -70,7 +70,7 @@ func (ps *Repository) Login(ctx context.Context, identifier string) (*UserDB, er
 
 	if err != nil {
 		if err == pgx.ErrNoRows {
-			return nil, usecases.ErrUserNotFound
+			return nil, domain.ErrUserNotFound
 		}
 		return nil, err
 	}
@@ -78,8 +78,8 @@ func (ps *Repository) Login(ctx context.Context, identifier string) (*UserDB, er
 	return &usrDB, nil
 }
 
-func (ps *Repository) GetUserById(ctx context.Context, id string) (*UserResponse, error) {
-	usr := &UserResponse{}
+func (ps *Repository) GetUserById(ctx context.Context, id string) (*domain.UserResponse, error) {
+	usr := &domain.UserResponse{}
 
 	row := ps.DB.QueryRow(
 		ctx,
@@ -91,7 +91,7 @@ func (ps *Repository) GetUserById(ctx context.Context, id string) (*UserResponse
 	err := row.Scan(&usr.ID, &usr.Email, &usr.CreatedAt)
 	if err != nil {
 		if err == pgx.ErrNoRows {
-			return nil, usecases.ErrUserNotFound
+			return nil, domain.ErrUserNotFound
 		}
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func (ps *Repository) DeleteUser(ctx context.Context, id string) error {
 		return err
 	}
 	if ct.RowsAffected() == 0 {
-		return usecases.ErrUserNotFound
+		return domain.ErrUserNotFound
 	}
 	return nil
 }

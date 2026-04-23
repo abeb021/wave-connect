@@ -1,9 +1,8 @@
 package handlers
 
 import (
-	"auth-service/internal/repository"
+	"auth-service/internal/domain"
 	"auth-service/internal/service"
-	"auth-service/usecases"
 	"encoding/json"
 	"net/http"
 )
@@ -17,7 +16,7 @@ func NewHandler(srv *service.Service) *Handler {
 }
 
 func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
-	var usr repository.UserRequest
+	var usr domain.UserRequest
 	err := json.NewDecoder(r.Body).Decode(&usr)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -26,7 +25,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 
 	usrResponse, err := h.Srv.Register(r.Context(), &usr)
 	if err != nil {
-		if err == usecases.ErrUserTaken {
+		if err == domain.ErrUserTaken {
 			http.Error(w, err.Error(), http.StatusConflict)
 			return
 		}
@@ -39,7 +38,7 @@ func (h *Handler) Register(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
-	var usrReq repository.UserRequest
+	var usrReq domain.UserRequest
 	err := json.NewDecoder(r.Body).Decode(&usrReq)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -48,12 +47,12 @@ func (h *Handler) Login(w http.ResponseWriter, r *http.Request) {
 
 	token, err := h.Srv.Login(r.Context(), &usrReq)
 	if err != nil {
-		if err == usecases.ErrWrongPassword {
-			http.Error(w, usecases.ErrWrongPassword.Error(), http.StatusBadRequest)
+		if err == domain.ErrWrongPassword {
+			http.Error(w, domain.ErrWrongPassword.Error(), http.StatusBadRequest)
 			return
 		}
-		if err == usecases.ErrUserNotFound {
-			http.Error(w, usecases.ErrUserNotFound.Error(), http.StatusNotFound)
+		if err == domain.ErrUserNotFound {
+			http.Error(w, domain.ErrUserNotFound.Error(), http.StatusNotFound)
 			return
 		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -73,8 +72,8 @@ func (h *Handler) GetUserById(w http.ResponseWriter, r *http.Request) {
 
 	usrResponse, err := h.Srv.GetUserById(r.Context(), id)
 	if err != nil {
-		if err == usecases.ErrUserNotFound {
-			http.Error(w, usecases.ErrUserNotFound.Error(), http.StatusNotFound)
+		if err == domain.ErrUserNotFound {
+			http.Error(w, domain.ErrUserNotFound.Error(), http.StatusNotFound)
 			return
 		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -95,8 +94,8 @@ func (h *Handler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	
 	err := h.Srv.DeleteUser(r.Context(), id)
 	if err != nil {
-		if err == usecases.ErrUserNotFound {
-			http.Error(w, usecases.ErrUserNotFound.Error(), http.StatusNotFound)
+		if err == domain.ErrUserNotFound {
+			http.Error(w, domain.ErrUserNotFound.Error(), http.StatusNotFound)
 			return
 		}
 		http.Error(w, err.Error(), http.StatusInternalServerError)

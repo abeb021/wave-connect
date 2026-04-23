@@ -2,9 +2,9 @@ package service
 
 import (
 	"auth-service/internal/repository"
+	"auth-service/internal/domain"
 	"auth-service/pkg/jwt"
 	"auth-service/pkg/util"
-	"auth-service/usecases"
 	"context"
 	"time"
 
@@ -23,12 +23,12 @@ func NewService(repo *repository.Repository, jwt *jwt.AuthService) *Service {
 	}
 }
 
-func (s *Service) Register(ctx context.Context, usrRequest *repository.UserRequest) (*repository.UserResponse, error) {
+func (s *Service) Register(ctx context.Context, usrRequest *domain.UserRequest) (*domain.UserResponse, error) {
 	hashedPassword, err := util.HashPassword(usrRequest.Password)
 	if err != nil {
 		return nil, err
 	}
-	usr := &repository.UserDB{
+	usr := &domain.UserDB{
 		ID:           uuid.New().String(),
 		Email:        usrRequest.Email,
 		PasswordHASH: hashedPassword,
@@ -43,7 +43,7 @@ func (s *Service) Register(ctx context.Context, usrRequest *repository.UserReque
 	return usrResponse, nil
 }
 
-func (s *Service) Login(ctx context.Context, usrRequest *repository.UserRequest) (string, error) {
+func (s *Service) Login(ctx context.Context, usrRequest *domain.UserRequest) (string, error) {
 	usrDB, err := s.Repo.Login(ctx, usrRequest.Email)
 	if err != nil {
 		return "", err
@@ -51,7 +51,7 @@ func (s *Service) Login(ctx context.Context, usrRequest *repository.UserRequest)
 
 	err = util.ValidatePassword(usrRequest.Password, usrDB.PasswordHASH)
 	if err != nil {
-		return "", usecases.ErrWrongPassword
+		return "", domain.ErrWrongPassword
 	}
 
 	token, err := s.Auth.GenerateToken(usrDB.ID, usrDB.Email)
@@ -62,7 +62,7 @@ func (s *Service) Login(ctx context.Context, usrRequest *repository.UserRequest)
 	return token, nil
 }
 
-func (s *Service) GetUserById(ctx context.Context, id string) (*repository.UserResponse, error) {
+func (s *Service) GetUserById(ctx context.Context, id string) (*domain.UserResponse, error) {
 	return s.Repo.GetUserById(ctx, id)
 }
 
