@@ -52,7 +52,9 @@ func (h *Handler) CreateProfile(w http.ResponseWriter, r *http.Request) {
 
 func (h *Handler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
-
+	if id == ""{
+		http.Error(w, "user id is required", http.StatusBadRequest)
+	}
 	prof, err := h.Srv.GetProfile(r.Context(), id)
 
 	if err != nil {
@@ -67,6 +69,28 @@ func (h *Handler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(prof)
 }
+
+func (h *Handler) GetProfileByUsername(w http.ResponseWriter, r *http.Request) {
+	username := r.PathValue("username")
+	if username == ""{
+		http.Error(w, "username is required", http.StatusBadRequest)
+	}
+
+	usrResponse, err := h.Srv.GetProfileByUsername(r.Context(), username)
+	if err != nil {
+		if err == domain.ErrProfileNotFound {
+			http.Error(w, domain.ErrProfileNotFound.Error(), http.StatusNotFound)
+			return
+		}
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusAccepted)
+	json.NewEncoder(w).Encode(usrResponse)
+}
+
 
 func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	userId := r.Header.Get("X-User-ID")

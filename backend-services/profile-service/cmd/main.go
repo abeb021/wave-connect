@@ -52,6 +52,7 @@ func main() {
 
 	r.HandleFunc("POST /api/profile/", h.CreateProfile)
 	r.HandleFunc("GET /api/profile/{id}", h.GetProfile)
+	r.HandleFunc("GET /api/profile/{username}", h.GetProfileByUsername)
 	r.HandleFunc("PUT /api/profile/", h.UpdateProfile)
 	r.HandleFunc("DELETE /api/profile/", h.DeleteProfile)
 	r.HandleFunc("PUT /api/profile/avatar/", h.UpdateAvatar)

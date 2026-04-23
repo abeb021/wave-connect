@@ -24,6 +24,10 @@ func (s *Service) GetProfile(ctx context.Context, id string) (*domain.Profile, e
 	return s.Repo.GetProfile(ctx, id)
 }
 
+func (s *Service) GetProfileByUsername(ctx context.Context, username string) (*domain.Profile, error) {
+	return s.Repo.GetProfileByUsername(ctx, username)
+}
+
 func (s *Service) UpdateProfile(ctx context.Context, prof *domain.Profile) error {
 	return s.Repo.UpdateProfile(ctx, prof)
 }

@@ -6,6 +6,8 @@ import (
 	"strings"
 
 	"profile-service/internal/domain"
+
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -66,6 +68,27 @@ func (ps *Repository) GetProfile(ctx context.Context, user_id string) (*domain.P
 	}
 
 	return &prof, nil
+}
+
+func (ps *Repository) GetProfileByUsername(ctx context.Context, username string) (*domain.Profile, error) {
+	prof := &domain.Profile{}
+
+	row := ps.DB.QueryRow(
+		ctx,
+		`SELECT id, username, bio, time_created
+		 FROM users 
+		 WHERE username = $1`,
+		username)
+
+	err := row.Scan(&prof.ID, &prof.Username, &prof.Bio, &prof.TimeCreated)
+	if err != nil {
+		if err == pgx.ErrNoRows {
+			return nil, domain.ErrProfileNotFound
+		}
+		return nil, err
+	}
+
+	return prof, nil
 }
 
 func (ps *Repository) UpdateProfile(ctx context.Context, prof *domain.Profile) error {
