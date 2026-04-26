@@ -2,17 +2,20 @@ package service
 
 import (
 	"context"
-	"profile-service/internal/repository"
 	"profile-service/internal/domain"
+	"profile-service/internal/kafka"
+	"profile-service/internal/repository"
 )
 
 type Service struct {
 	Repo *repository.Repository
+	producer *kafka.Producer
 }
 
-func NewService(repo *repository.Repository) *Service {
+func NewService(repo *repository.Repository, producer *kafka.Producer) *Service {
 	return &Service{
 		Repo: repo,
+		producer: producer,
 	}
 }
 
@@ -29,7 +32,13 @@ func (s *Service) GetProfileByUsername(ctx context.Context, username string) (*d
 }
 
 func (s *Service) UpdateProfile(ctx context.Context, prof *domain.Profile) error {
-	return s.Repo.UpdateProfile(ctx, prof)
+	err := s.Repo.UpdateProfile(ctx, prof)
+	if err != nil{
+		return err
+	}
+	s.producer.Send()
+
+	return nil
 }
 
 func (s *Service) DeleteProfile(ctx context.Context, id string) error {
@@ -42,4 +51,10 @@ func (s *Service) UpdateAvatar(ctx context.Context, id string, data []byte) erro
 
 func (s *Service) GetAvatar(ctx context.Context, id string) ([]byte, error) {
 	return s.Repo.GetAvatar(ctx, id)
+}
+
+
+//kafka events
+func (s *Service) sendProfilUpdatedEvent(userID, username string, avatar []byte) {
+	
 }

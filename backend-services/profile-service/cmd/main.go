@@ -9,6 +9,7 @@ import (
 	"profile-service/api/http/handlers"
 	"profile-service/api/http/middleware"
 	"profile-service/internal/config"
+	"profile-service/internal/kafka"
 	"profile-service/internal/repository"
 	"profile-service/internal/service"
 	"syscall"
@@ -44,8 +45,15 @@ func main() {
 
 	//backend architecture setup
 	repo := repository.NewRepository(dbPool)
-	srv := service.NewService(repo)
+	producer, err := kafka.NewProducer(cfg.KafkaBroker)
+	if err != nil{
+		log.Fatal("kafka producer", err)
+	}
+	defer producer.Close()
+	srv := service.NewService(repo, producer)
 	h := handlers.NewHandler(srv)
+	
+
 
 	//routing
 	r := http.NewServeMux()
