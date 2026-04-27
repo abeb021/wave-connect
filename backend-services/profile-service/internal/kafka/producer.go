@@ -1,7 +1,7 @@
 package kafka
 
 import (
-	"errors"
+	"log"
 
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 )
@@ -18,6 +18,21 @@ func NewProducer(broker string) (*Producer, error) {
 		return nil, err
 	}
 
+	go func() {
+		for e := range p.Events(){
+			switch ev := e.(type) {
+			case *kafka.Message:
+				if ev.TopicPartition.Error != nil{
+					log.Printf("Delivery failed: %v\n", ev.TopicPartition.Error)
+				} else {
+					log.Printf("Message delivered: %v\n", ev.TopicPartition)
+				}
+			case kafka.Error:
+				log.Printf("kafka error: %v\n", err)
+			}
+		}
+	}()
+
 	return &Producer{kp: p}, nil
 }
 
@@ -26,8 +41,6 @@ func (p *Producer) Close(){
 }
 
 func (p *Producer) Send(topic, key string, value []byte) error{
-	deliveryChan := make(chan kafka.Event)
-
 	err := p.kp.Produce(&kafka.Message{
 		TopicPartition: kafka.TopicPartition{
 			Topic: &topic,
@@ -35,21 +48,7 @@ func (p *Producer) Send(topic, key string, value []byte) error{
 		},
 		Key: []byte(key),
 		Value: value,
-	}, deliveryChan)
-
-	if err != nil{
-		return err
-	}
-
-	e := <-deliveryChan
-	m, ok := e.(*kafka.Message)
-	if !ok{
-		return errors.New("unexpected error")
-	}
-
-	if m.TopicPartition.Error != nil{
-		return m.TopicPartition.Error
-	}
-
-	return nil
+	}, nil)
+	
+	return err
 }

@@ -24,6 +24,7 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	cfg := config.Load()
+	log.Printf("KAFKA_BROKER from config: '%s'", cfg.KafkaBroker)
 
 	//migrations
 	m, err := migrate.New("file://migrations", cfg.DatabaseURL())

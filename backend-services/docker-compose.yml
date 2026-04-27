@@ -151,6 +151,7 @@ services:
       DB_USER: ${DB_PROFILE_USER}
       DB_PASSWORD: ${DB_PROFILE_PASSWORD}
       DB_NAME: ${DB_PROFILE_NAME}
+      KAFKA_BROKER: ${KAFKA_BROKER}
     expose:
       - 8084
     networks:

@@ -27,6 +27,7 @@ func Load() *Config {
 	v.SetConfigType("env")
 	v.AddConfigPath(".")
 	v.AutomaticEnv()
+	// os.getenv^^^
 
 	// // Set defaults
 	// v.SetDefault("DB_HOST", "db")
