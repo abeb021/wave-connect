@@ -130,24 +130,19 @@ func (ps *Repository) DeleteProfile(ctx context.Context, id string) error {
 	return nil
 }
 
-func (ps *Repository) UpdateAvatar(ctx context.Context, userID string, data []byte) error{
-	ct, err := ps.DB.Exec(ctx,
+func (ps *Repository) UpdateAvatar(ctx context.Context, userID string, data []byte) (username, bio string, err error) {
+	err = ps.DB.QueryRow(ctx,
 		`UPDATE profiles
 		 SET avatar = $1
-		 WHERE id = $2`,
+		 WHERE id = $2
+		 RETURNING username, bio`,
 		data, userID,
-	)
+	).Scan(&username, &bio)
 
-	
 	if err != nil{
-		return err
+		return "", "", err
 	}
-	
-	if ct.RowsAffected() == 0{
-		return domain.ErrProfileNotFound
-	}
-
-	return nil
+	return username, bio, nil
 }
 
 

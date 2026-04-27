@@ -9,6 +9,7 @@ type Profile struct {
 	ID          string    `json:"id"`
 	TimeCreated time.Time `json:"time_created"`
 	Bio         string    `json:"bio,omitempty"`
+	Avatar      []byte    `json:"avatar,omitempty"`
 }
 
 type CreateProfileRequest struct {

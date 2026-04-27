@@ -2,25 +2,32 @@ package service
 
 import (
 	"context"
+	"encoding/json"
+	"log"
 	"profile-service/internal/domain"
 	"profile-service/internal/kafka"
 	"profile-service/internal/repository"
 )
 
 type Service struct {
-	Repo *repository.Repository
+	Repo     *repository.Repository
 	producer *kafka.Producer
 }
 
 func NewService(repo *repository.Repository, producer *kafka.Producer) *Service {
 	return &Service{
-		Repo: repo,
+		Repo:     repo,
 		producer: producer,
 	}
 }
 
 func (s *Service) CreateProfile(ctx context.Context, profReq *domain.CreateProfileRequest, id string) (*domain.Profile, error) {
-	return s.Repo.CreateProfile(ctx, profReq, id)
+	prof, err := s.Repo.CreateProfile(ctx, profReq, id)
+	if err != nil {
+		return nil, err
+	}
+	s.sendProfilUpdatedEvent(prof.ID, prof.Username, prof.Bio, prof.Avatar)
+	return prof, nil
 }
 
 func (s *Service) GetProfile(ctx context.Context, id string) (*domain.Profile, error) {
@@ -33,11 +40,10 @@ func (s *Service) GetProfileByUsername(ctx context.Context, username string) (*d
 
 func (s *Service) UpdateProfile(ctx context.Context, prof *domain.Profile) error {
 	err := s.Repo.UpdateProfile(ctx, prof)
-	if err != nil{
+	if err != nil {
 		return err
 	}
-	s.producer.Send()
-
+	s.sendProfilUpdatedEvent(prof.ID, prof.Username, prof.Bio, prof.Avatar)
 	return nil
 }
 
@@ -46,15 +52,30 @@ func (s *Service) DeleteProfile(ctx context.Context, id string) error {
 }
 
 func (s *Service) UpdateAvatar(ctx context.Context, id string, data []byte) error {
-	return s.Repo.UpdateAvatar(ctx, id, data)
+	username, bio, err := s.Repo.UpdateAvatar(ctx, id, data)
+	if err != nil {
+		return err
+	}
+	s.sendProfilUpdatedEvent(id, username, bio, data)
+	return nil
 }
 
 func (s *Service) GetAvatar(ctx context.Context, id string) ([]byte, error) {
 	return s.Repo.GetAvatar(ctx, id)
 }
 
+// kafka events
+func (s *Service) sendProfilUpdatedEvent(userID, username, bio string, avatar []byte) {
+	event := map[string]interface{}{
+		"user_id":  userID,
+		"username": username,
+		"bio":      bio,
+		"avatar":   avatar,
+	}
+	value, _ := json.Marshal(event)
 
-//kafka events
-func (s *Service) sendProfilUpdatedEvent(userID, username string, avatar []byte) {
-	
+	err := s.producer.Send("profile-updates", userID, value)
+	if err != nil {
+		log.Printf("kafka send error:%v\n", err)
+	}
 }

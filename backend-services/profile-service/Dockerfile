@@ -1,6 +1,6 @@
 FROM golang:alpine3.23
 
-RUN apk add --no-cache gcc musl-dev librdkafka-dev pkgconfig
+RUN apk add --no-cache gcc musl-dev
 
 WORKDIR /app
 
@@ -10,7 +10,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -tags dynamic -o main ./cmd
+RUN go build -tags musl -o main ./cmd
 
 EXPOSE 8084
 
