@@ -47,6 +47,7 @@ flowchart TB
   G -->|proxy JWT required| FEED[Feed 8083]
   G -->|proxy JWT required| PROFILE[Profile 8084]
   G -->|proxy JWT required| CHAT[Chat 8082]
+  K[(Kafka :9092)]
 
   %% Auth service internals
   subgraph AuthService["Auth Service"]
@@ -80,6 +81,12 @@ flowchart TB
     CHAT --> M2[(Postgres chat_db)]
   end
 
+  %% Kafka events
+  AUTH -->|produce user-registered| K
+  K -->|consume user-registered| PROFILE
+  PROFILE -->|produce profile-updates| K
+  K -->|consume profile-updates| FEED
+
   %% Client entrypoint
   C -->|HTTP| G3
 ```
@@ -108,7 +115,7 @@ sequenceDiagram
 
   C->>G: POST /api/auth/login
   G->>A: POST /api/auth/login (proxy)
-  A-->>C: 200 + JWT
+  A-->>C: 202 + Authorization header (Bearer JWT)
 
   C->>G: GET /api/feed/{id}
 
@@ -127,14 +134,40 @@ sequenceDiagram
   autonumber
   participant C as Client
   participant G as Gateway (:8080)
-  participant CH as Chat (:8082)
+  participant WS as Chat WS Handler (:8082 /api/chat/ws)
+  participant H as Chat Hub
 
   C->>G: GET /api/chat/ws
   Note over C,G: Authorization header or jwt cookie
-  G->>G: Validate JWT
-  G->>CH: Proxy upgrade request + X-User-ID
-  CH->>CH: Upgrade HTTP to WebSocket
-  CH-->>C: connected
+  G->>G: Validate JWT and set X-User-ID
+  G->>WS: Proxy upgrade request + X-User-ID
+  WS->>WS: Upgrade HTTP to WebSocket
+  WS->>H: Register client connection by user id
+  WS-->>C: connected
+```
+
+### Register + login + events
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant C as Client
+  participant G as Gateway (:8080)
+  participant A as Auth (:8081)
+  participant K as Kafka
+  participant P as Profile (:8084)
+
+  C->>G: POST /api/auth/register
+  G->>A: proxy register
+  A->>A: create user in auth_db
+  A->>K: publish user-registered {user_id}
+  K->>P: consume user-registered
+  P->>P: create profile row by user_id
+  A-->>C: user created
+
+  C->>G: POST /api/auth/login
+  G->>A: proxy login
+  A-->>C: 202 + Authorization: Bearer <jwt>
 ```
 
 ### What the gateway enforces
@@ -160,9 +193,8 @@ Base URL: `http://localhost:8080`
 
 - `POST /api/auth/register`
 - `POST /api/auth/login`
-- `GET /api/auth/id/{id}` (requires JWT)
-- `GET /api/auth/username/{username}` (requires JWT)
-- `DELETE /api/auth/{id}` (requires JWT)
+- `GET /api/auth/id/` (requires JWT)
+- `DELETE /api/auth/` (requires JWT)
 
 #### Feed (proxied to feed-service; requires JWT)
 
@@ -172,13 +204,19 @@ Base URL: `http://localhost:8080`
 - `GET /api/feed/{id}`
 - `PUT /api/feed/{id}`
 - `DELETE /api/feed/{id}`
+- `POST /api/feed/{pubID}/comment/`
+- `GET /api/feed/{pubID}/comment/`
+- `DELETE /api/feed/comment/{id}`
 
 #### Profile (proxied to profile-service; requires JWT)
 
 - `POST /api/profile/`
 - `GET /api/profile/{id}`
-- `PUT /api/profile/{id}`
-- `DELETE /api/profile/{id}`
+- `GET /api/profile/username/{username}`
+- `PUT /api/profile/`
+- `DELETE /api/profile/`
+- `PUT /api/profile/avatar/`
+- `GET /api/profile/avatar/{id}`
 
 #### Chat (proxied to chat-service; requires JWT)
 
@@ -194,6 +232,7 @@ Notes:
 - WebSocket chat is enabled at `GET /api/chat/ws`
 - direct chat health check is available at `GET http://localhost:8082/health`
 - `POST /api/chat/` exists in the chat handler, but the route is currently commented out in `backend-services/chat-service/cmd/main.go`
+- auth/profile/feed write operations rely on forwarded `X-User-ID` from gateway JWT middleware
 
 ### Direct service ports (Docker)
 
@@ -209,10 +248,9 @@ Notes:
 erDiagram
   USERS {
     UUID id PK
-    TEXT username "unique"
     TEXT email "unique"
     TEXT password_hash
-    TIMESTAMPTZ created_at
+    TIMESTAMPTZ time_created
   }
 
   MESSAGES {
@@ -230,11 +268,48 @@ erDiagram
     TIMESTAMPTZ time_created
   }
 
+  COMMENTS {
+    UUID id PK
+    UUID pub_id FK
+    TEXT text
+    TEXT user_id
+    TIMESTAMPTZ time_created
+  }
+
   PROFILES {
     UUID id PK
     TEXT username "unique"
+    TEXT bio
+    BYTEA avatar
     TIMESTAMPTZ time_created
   }
+
+  PROCESSED_EVENTS {
+    TEXT event_id PK
+    TEXT event_type
+    TIMESTAMPTZ processed_at
+  }
+```
+
+## Kafka schemas (event payloads)
+
+### Topic: `user-registered` (produced by auth-service, consumed by profile-service)
+
+```json
+{
+  "user_id": "uuid"
+}
+```
+
+### Topic: `profile-updates` (produced by profile-service, consumed by feed-service)
+
+```json
+{
+  "user_id": "uuid",
+  "username": "string",
+  "bio": "string",
+  "avatar": "bytes"
+}
 ```
 
 ## Run locally (Docker Compose)
@@ -271,12 +346,12 @@ The compose file reads variables from `.env` (see `backend-services/.env.example
 # register
 curl -i -X POST http://localhost:8080/api/auth/register \
   -H 'Content-Type: application/json' \
-  -d '{"username":"alice","email":"alice@example.com","password":"password"}'
+  -d '{"email":"alice@example.com","password":"password"}'
 
 # login (grab the Authorization: Bearer <jwt> header from response)
 curl -i -X POST http://localhost:8080/api/auth/login \
   -H 'Content-Type: application/json' \
-  -d '{"username":"alice","email":"alice@example.com","password":"password"}'
+  -d '{"email":"alice@example.com","password":"password"}'
 
 # feed list (replace <jwt>)
 curl -i http://localhost:8080/api/feed/ \
