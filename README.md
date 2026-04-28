@@ -31,69 +31,51 @@ Go microservices backend for a small social-style app. It’s composed of an HTT
 - **Dev orchestration**: Docker + Docker Compose
 
 ## Architecture
-
+### High-level system (service boundaries)
 ```mermaid
+flowchart LR
+  Client --> Gateway
+
+  Gateway --> Auth
+  Gateway --> Feed
+  Gateway --> Profile
+  Gateway --> Chat
+
+  Auth --> Kafka
+  Kafka --> Profile
+  Profile --> Kafka
+  Kafka --> Feed
+```
+### Request flow (Gateway + JWT)
+```mermaid 
 flowchart TB
-  C[Client]
-  
-  %% Gateway
-  G3[Gateway 8080]
-    subgraph Gateway["Gateway Service"]
-    direction TB
-    G2 --> G[JWT middleware]
-    G3 --> G2[Reverse proxy]
+  Client -->|HTTP request| Gateway
+
+  subgraph Gateway
+    JWT[JWT Middleware] --> ReverseProxy
   end
 
-  %% Domain services
-  G2 -->|/auth/login| AUTH
-  G2 -->|/auth/register| AUTH
-  AUTH --> |JWT token| G2
-  G -->|proxy JWT required| AUTH[Auth 8081]
-  G -->|proxy JWT required| FEED[Feed 8083]
-  G -->|proxy JWT required| PROFILE[Profile 8084]
-  G -->|proxy JWT required| CHAT[Chat 8082]
-  K[(Kafka :9092)]
+  Gateway --> JWT
 
-  %% Auth service internals
-  subgraph AuthService["Auth Service"]
-    direction TB
-    AUTH --> A1[HTTP handlers]
-    AUTH --> A2[JWT issuance]
-    AUTH --> A3[Password hashing]
-    AUTH --> A4[(Postgres auth_db)]
-  end
+  JWT -->|/auth/login, /auth/register| Auth
+  Auth -->|JWT token| Client
 
-  %% Feed service internals
-  subgraph FeedService["Feed Service"]
-    direction TB
-    FEED --> F1[HTTP handlers]
-    FEED --> F2[Reads X-User-ID from gateway]
-    FEED --> F3[(Postgres feed_db)]
-  end
+  JWT -->|validated request| ReverseProxy
+  ReverseProxy --> Feed
+  ReverseProxy --> Profile
+  ReverseProxy --> Chat
 
-  %% Profile service internals
-  subgraph ProfileService["Profile Service"]
-    direction TB
-    PROFILE --> P1[HTTP handlers]
-    PROFILE --> P2[(Postgres profile_db)]
-  end
+  JWT -->|invalid token| Reject[401 Unauthorized]
+```
+### Event-driven flow (Kafka)
+```mermaid
+flowchart LR
+  Auth -->|user-registered| Kafka
 
-  %% Chat service internals
-  subgraph ChatService["Chat Service"]
-    direction TB
-    CHAT --> M1[HTTP handlers]
-    CHAT --> M3[WebSocket hub]
-    CHAT --> M2[(Postgres chat_db)]
-  end
+  Kafka -->|consume| Profile
+  Profile -->|profile-updates| Kafka
 
-  %% Kafka events
-  AUTH -->|produce user-registered| K
-  K -->|consume user-registered| PROFILE
-  PROFILE -->|produce profile-updates| K
-  K -->|consume profile-updates| FEED
-
-  %% Client entrypoint
-  C -->|HTTP| G3
+  Kafka -->|consume| Feed
 ```
 
 ## Backend internal architecture (per service)
