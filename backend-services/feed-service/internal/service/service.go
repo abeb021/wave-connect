@@ -24,6 +24,9 @@ func (s *Service) GetFeed(ctx context.Context) ([]domain.Publication, error) {
 	return s.Repo.GetFeed(ctx)
 }
 
+func (s *Service) GetFeedWithProfiles(ctx context.Context) ([]domain.FeedPublication, error) {
+	return s.Repo.GetFeedWithProfiles(ctx)
+}
 func (s *Service) GetPublicationsByUser(ctx context.Context, userId string) ([]domain.Publication, error) {
 	return s.Repo.GetPublicationsByUser(ctx, userId)
 }

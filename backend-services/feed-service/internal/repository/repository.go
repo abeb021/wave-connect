@@ -46,35 +46,6 @@ func (ps *Repository) CreatePublication(ctx context.Context, pubReq *domain.Publ
 	return &pub, nil
 }
 
-func (ps *Repository) GetFeed(ctx context.Context) ([]domain.Publication, error) {
-	rows, err := ps.DB.Query(
-		ctx,
-		`SELECT id, text, user_id, time_created
-		FROM publications
-		ORDER BY time_created DESC`,
-	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var pubs []domain.Publication
-	for rows.Next() {
-		var pub domain.Publication
-		err := rows.Scan(&pub.ID, &pub.Text, &pub.UserID, &pub.TimeCreated)
-		if err != nil {
-			return nil, err
-		}
-		pubs = append(pubs, pub)
-	}
-
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return pubs, nil
-}
-
 func (ps *Repository) GetPublicationsByUser(ctx context.Context, userID string) ([]domain.Publication, error) {
 	rows, err := ps.DB.Query(
 		ctx,
@@ -160,6 +131,69 @@ func (ps *Repository) DeletePublication(ctx context.Context, id, userID string) 
 	}
 
 	return nil
+}
+
+func (ps *Repository) GetFeed(ctx context.Context) ([]domain.Publication, error) {
+	rows, err := ps.DB.Query(
+		ctx,
+		`SELECT id, text, user_id, time_created
+		FROM publications
+		ORDER BY time_created DESC`,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var pubs []domain.Publication
+	for rows.Next() {
+		var pub domain.Publication
+		err := rows.Scan(&pub.ID, &pub.Text, &pub.UserID, &pub.TimeCreated)
+		if err != nil {
+			return nil, err
+		}
+		pubs = append(pubs, pub)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return pubs, nil
+}
+
+func (ps *Repository) GetFeedWithProfiles(ctx context.Context) ([]domain.FeedPublication, error) {
+	rows, err := ps.DB.Query(
+		ctx,
+		`SELECT p.id, p.text, p.user_id,
+			COALESCE(pr.username, 'unknown') as username,
+			COALESCE(pr.bio, '') as bio, 
+			pr.avatar,
+			p.time_created
+		FROM publications p
+		LEFT JOIN profiles pr ON p.user_id = pr.id::TEXT
+		ORDER BY p.time_created DESC`,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var pubs []domain.FeedPublication
+	for rows.Next() {
+		var pub domain.FeedPublication
+		err := rows.Scan(&pub.ID, &pub.Text, &pub.UserID,&pub.Username, &pub.Bio, &pub.Avatar, &pub.TimeCreated)
+		if err != nil {
+			return nil, err
+		}
+		pubs = append(pubs, pub)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return pubs, nil
 }
 
 //COMMENTS

@@ -40,14 +40,14 @@ func (h *Handler) CreatePublication(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) GetFeed(w http.ResponseWriter, r *http.Request) {
-	pubs, err := h.Srv.GetFeed(r.Context())
+	pubs, err := h.Srv.GetFeedWithProfiles(r.Context())
 	if err != nil {
 		http.Error(w, "failed to get feed", http.StatusInternalServerError)
 		return
 	}
 
 	if pubs == nil {
-		pubs = []domain.Publication{}
+		pubs = []domain.FeedPublication{}
 	}
 
 	w.Header().Set("Content-Type", "application/json")

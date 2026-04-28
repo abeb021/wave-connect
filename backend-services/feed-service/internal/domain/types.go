@@ -29,3 +29,13 @@ type CommentRequest struct {
 	PubID  string `json:"pub_id"`
 	UserID string `json:"user_id"`
 }
+
+type FeedPublication struct {
+	ID          string    `json:"id"`
+	Text        string    `json:"text"`
+	UserID      string    `json:"user_id"`
+	Username    string    `json:"username"`
+	Bio         string    `json:"bio,omitempty"`
+	Avatar      []byte    `json:"avatar,omitempty"`
+	TimeCreated time.Time `json:"time_created"`
+}
