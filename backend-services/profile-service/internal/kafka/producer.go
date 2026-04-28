@@ -21,12 +21,14 @@ func NewProducer(broker string) (*Producer, error) {
 	go func() {
 		for e := range p.Events(){
 			switch ev := e.(type) {
+			//message is an error of a C kafka
 			case *kafka.Message:
 				if ev.TopicPartition.Error != nil{
 					log.Printf("Delivery failed: %v\n", ev.TopicPartition.Error)
 				} else {
 					log.Printf("Message delivered: %v\n", ev.TopicPartition)
 				}
+			//this is an error of a producer (lib)
 			case kafka.Error:
 				log.Printf("kafka error: %v\n", err)
 			}
@@ -37,6 +39,8 @@ func NewProducer(broker string) (*Producer, error) {
 }
 
 func (p *Producer) Close(){
+	//wait 10 sec
+	p.kp.Flush(10 * 1000)
 	p.kp.Close()
 }
 
@@ -49,6 +53,7 @@ func (p *Producer) Send(topic, key string, value []byte) error{
 		Key: []byte(key),
 		Value: value,
 	}, nil)
+	//chan is nil so it uses p.kp.Events() as a default channel
 	
 	return err
 }
