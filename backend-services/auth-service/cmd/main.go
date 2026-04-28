@@ -4,6 +4,7 @@ import (
 	"auth-service/api/handlers"
 	"auth-service/api/middleware"
 	"auth-service/internal/config"
+	"auth-service/internal/kafka"
 	"auth-service/internal/repository"
 	"auth-service/internal/service"
 	"auth-service/pkg/jwt"
@@ -47,7 +48,11 @@ func main() {
 	auth := jwt.NewAuthService(cfg.JWTSecret)
 	//backend architecture setup
 	repo := repository.NewRepository(dbPool)
-	srv := service.NewService(repo, auth)
+	producer, err := kafka.NewProducer(cfg.KafkaBroker)
+	if err != nil{
+		log.Fatal("kafka producer", err)
+	}
+	srv := service.NewService(repo, auth, producer)
 	h := handlers.NewHandler(srv)
 
 	//routing

@@ -26,7 +26,7 @@ func (s *Service) CreateProfile(ctx context.Context, profReq *domain.CreateProfi
 	if err != nil {
 		return nil, err
 	}
-	s.sendProfilUpdatedEvent(prof.ID, prof.Username, prof.Bio, prof.Avatar)
+	s.sendProfileUpdatedEvent(prof.ID, prof.Username, prof.Bio, prof.Avatar)
 	return prof, nil
 }
 
@@ -43,7 +43,7 @@ func (s *Service) UpdateProfile(ctx context.Context, prof *domain.Profile) error
 	if err != nil {
 		return err
 	}
-	s.sendProfilUpdatedEvent(prof.ID, prof.Username, prof.Bio, prof.Avatar)
+	s.sendProfileUpdatedEvent(prof.ID, prof.Username, prof.Bio, prof.Avatar)
 	return nil
 }
 
@@ -56,7 +56,7 @@ func (s *Service) UpdateAvatar(ctx context.Context, id string, data []byte) erro
 	if err != nil {
 		return err
 	}
-	s.sendProfilUpdatedEvent(id, username, bio, data)
+	s.sendProfileUpdatedEvent(id, username, bio, data)
 	return nil
 }
 
@@ -65,7 +65,7 @@ func (s *Service) GetAvatar(ctx context.Context, id string) ([]byte, error) {
 }
 
 // kafka events
-func (s *Service) sendProfilUpdatedEvent(userID, username, bio string, avatar []byte) {
+func (s *Service) sendProfileUpdatedEvent(userID, username, bio string, avatar []byte) {
 	event := map[string]interface{}{
 		"user_id":  userID,
 		"username": username,

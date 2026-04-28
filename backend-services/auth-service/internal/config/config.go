@@ -15,6 +15,8 @@ type Config struct {
 	DBName     string
 	DBSSLMode  string
 
+	KafkaBroker string
+
 	JWTSecret string
 }
 
@@ -43,13 +45,14 @@ func Load() *Config {
 	}
 
 	cfg := &Config{
-		JWTSecret:  v.GetString("JWT_SECRET"),
-		DBHost:     v.GetString("DB_HOST"),
-		DBPort:     v.GetString("DB_PORT"),
-		DBUser:     v.GetString("DB_USER"),
-		DBPassword: v.GetString("DB_PASSWORD"),
-		DBName:     v.GetString("DB_NAME"),
-		DBSSLMode:  v.GetString("DB_SSLMODE"),
+		JWTSecret:   v.GetString("JWT_SECRET"),
+		DBHost:      v.GetString("DB_HOST"),
+		DBPort:      v.GetString("DB_PORT"),
+		DBUser:      v.GetString("DB_USER"),
+		DBPassword:  v.GetString("DB_PASSWORD"),
+		DBName:      v.GetString("DB_NAME"),
+		DBSSLMode:   v.GetString("DB_SSLMODE"),
+		KafkaBroker: v.GetString("KAFKA_BROKER"),
 	}
 
 	return cfg

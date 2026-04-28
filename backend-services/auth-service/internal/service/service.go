@@ -1,11 +1,14 @@
 package service
 
 import (
-	"auth-service/internal/repository"
 	"auth-service/internal/domain"
+	"auth-service/internal/kafka"
+	"auth-service/internal/repository"
 	"auth-service/pkg/jwt"
 	"auth-service/pkg/util"
 	"context"
+	"encoding/json"
+	"log"
 
 	"github.com/google/uuid"
 )
@@ -13,12 +16,14 @@ import (
 type Service struct {
 	Repo *repository.Repository
 	Auth *jwt.AuthService
+	producer *kafka.Producer
 }
 
-func NewService(repo *repository.Repository, jwt *jwt.AuthService) *Service {
+func NewService(repo *repository.Repository, jwt *jwt.AuthService, producer *kafka.Producer) *Service {
 	return &Service{
 		Repo: repo,
 		Auth: jwt,
+		producer: producer,
 	}
 }
 
@@ -38,6 +43,7 @@ func (s *Service) Register(ctx context.Context, usrRequest *domain.UserRequest) 
 		return nil, err
 	}
 
+	s.sendProfileCreatedEvent(usrResponse.ID)
 	return usrResponse, nil
 }
 
@@ -67,3 +73,18 @@ func (s *Service) GetUserById(ctx context.Context, id string) (*domain.UserRespo
 func (s *Service) DeleteUser(ctx context.Context, id string) error {
 	return s.Repo.DeleteUser(ctx, id)
 }
+
+// kafka events
+func (s *Service) sendProfileCreatedEvent(userID string) {
+	event := map[string]interface{}{
+		"user_id":  userID,
+
+	}
+	value, _ := json.Marshal(event)
+
+	err := s.producer.Send("user.registered", userID, value)
+	if err != nil {
+		log.Printf("kafka send error:%v\n", err)
+	}
+}
+
