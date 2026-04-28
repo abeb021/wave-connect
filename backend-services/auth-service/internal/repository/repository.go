@@ -29,14 +29,15 @@ func NewRepository(db *pgxpool.Pool) *Repository {
 }
 
 func (ps *Repository) Register(ctx context.Context, usr *domain.UserDB) (*domain.UserResponse, error) {
-	_, err := ps.DB.Exec(
+	row := ps.DB.QueryRow(
 		ctx,
 		`INSERT INTO users (id, email, password_hash)
-	 	 VALUES ($1, $2, $3)`,
+	 	 VALUES ($1, $2, $3)
+		 RETURNING time_created`,
 		usr.ID, usr.Email, usr.PasswordHASH,
 	)
 
-	if err != nil {
+	if err := row.Scan(&usr.TimeCreated); err != nil {
 		if strings.Contains(err.Error(), "duplicate") {
 			return nil, domain.ErrUserTaken
 		}
@@ -45,7 +46,7 @@ func (ps *Repository) Register(ctx context.Context, usr *domain.UserDB) (*domain
 	usrResponse := domain.UserResponse{
 		ID:        usr.ID,
 		Email:     usr.Email,
-		CreatedAt: usr.CreatedAt,
+		CreatedAt: usr.TimeCreated,
 	}
 	return &usrResponse, nil
 }

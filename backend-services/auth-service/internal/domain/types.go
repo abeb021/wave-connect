@@ -19,5 +19,5 @@ type UserDB struct {
 	ID           string    `db:"id"`
 	Email        string    `db:"email"`
 	PasswordHASH string    `db:"password_hash"`
-	CreatedAt    time.Time `db:"created_at"`
+	TimeCreated    time.Time `db:"created_at"`
 }

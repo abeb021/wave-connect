@@ -6,7 +6,6 @@ import (
 	"auth-service/pkg/jwt"
 	"auth-service/pkg/util"
 	"context"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -32,7 +31,6 @@ func (s *Service) Register(ctx context.Context, usrRequest *domain.UserRequest) 
 		ID:           uuid.New().String(),
 		Email:        usrRequest.Email,
 		PasswordHASH: hashedPassword,
-		CreatedAt:    time.Now(),
 	}
 
 	usrResponse, err := s.Repo.Register(ctx, usr)
