@@ -3,7 +3,9 @@ package domain
 import "errors"
 
 var (
-	ErrUserNotFound  = errors.New("user not found")
-	ErrUserTaken     = errors.New("username/email already taken")
-	ErrWrongPassword = errors.New("wrong password")
+	ErrUserNotFound        = errors.New("user not found")
+	ErrUserTaken           = errors.New("username/email already taken")
+	ErrWrongPassword       = errors.New("wrong password")
+	ErrCommentNotFound     = errors.New("comment not found")
+	ErrPublicationNotFound = errors.New("publication not found")
 )

@@ -5,6 +5,7 @@ import (
 	"feed-service/api/handlers"
 	"feed-service/api/middleware"
 	"feed-service/internal/config"
+	feedkafka "feed-service/internal/kafka"
 	"feed-service/internal/repository"
 	"feed-service/internal/service"
 	"log"
@@ -46,6 +47,20 @@ func main() {
 	repo := repository.NewRepository(dbPool)
 	srv := service.NewService(repo)
 	h := handlers.NewHandler(srv)
+
+	// Kafka consumer 
+	consumer, err := feedkafka.NewConsumer(cfg.KafkaBroker, "feed-service", repo)
+	if err != nil{
+		log.Fatalf("kafka consumer: %v\n", err)
+	}
+	defer consumer.Close()
+
+	go func (){
+		log.Println("starting kafka consumer")
+		if err := consumer.Start(ctx, []string{"profile-updates"}); err != nil{
+			log.Printf("consumer stopped")
+		}
+	}()
 
 	//routing
 	r := http.NewServeMux()

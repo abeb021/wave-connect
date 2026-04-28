@@ -15,6 +15,8 @@ type Config struct {
 	DBName     string
 	DBSSLMode  string
 
+	KafkaBroker string
+
 	HTTPPort string
 }
 
@@ -47,6 +49,7 @@ func Load() *Config {
 		DBPassword: v.GetString("DB_PASSWORD"),
 		DBName:     v.GetString("DB_NAME"),
 		DBSSLMode:  v.GetString("DB_SSLMODE"),
+		KafkaBroker: v.GetString("KAFKA_BROKER"),
 	}
 
 	return cfg

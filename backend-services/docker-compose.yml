@@ -112,6 +112,7 @@ services:
       DB_USER: ${DB_FEED_USER}
       DB_PASSWORD: ${DB_FEED_PASSWORD}
       DB_NAME: ${DB_FEED_NAME}
+      KAFKA_BROKER: ${KAFKA_BROKER}
     expose:
       - 8083
     networks:

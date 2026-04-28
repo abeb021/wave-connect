@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
 	"feed-service/internal/domain"
 
 	"github.com/google/uuid"
@@ -139,7 +138,7 @@ func (ps *Repository) UpdatePublication(ctx context.Context, id, text, userID st
 		return err
 	}
 	if ct.RowsAffected() == 0 {
-		return errors.New("ID not found")
+		return domain.ErrPublicationNotFound
 	}
 
 	return nil
@@ -157,7 +156,7 @@ func (ps *Repository) DeletePublication(ctx context.Context, id, userID string) 
 		return err
 	}
 	if ct.RowsAffected() == 0 {
-		return errors.New("ID not found")
+		return domain.ErrPublicationNotFound
 	}
 
 	return nil
@@ -194,19 +193,19 @@ func (ps *Repository) GetCommentsByPublication(ctx context.Context, pubID string
 		 FROM comments
 		 WHERE pub_id = $1
 	 	 ORDER BY time_created DESC`,
-		 pubID,
+		pubID,
 	)
 
-	if err != nil{
+	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
 	var comments []domain.Comment
-	for rows.Next(){
+	for rows.Next() {
 		var comment domain.Comment
 		err := rows.Scan(&comment.ID, &comment.PubID, &comment.Text, &comment.UserID, &comment.TimeCreated)
-		if err != nil{
+		if err != nil {
 			return nil, err
 		}
 		comments = append(comments, comment)
@@ -231,8 +230,40 @@ func (ps *Repository) DeleteComment(ctx context.Context, id, userID string) erro
 		return err
 	}
 	if ct.RowsAffected() == 0 {
-		return errors.New("ID not found")
+		return domain.ErrCommentNotFound
 	}
 
 	return nil
+}
+
+// KAFKA CONSUMER METHODS
+func (ps *Repository) UpsertProfile(ctx context.Context, userID, username, bio string, avatar []byte) error {
+	_, err := ps.DB.Exec(ctx,
+	`INSERT INTO profiles (id, username, bio, avatar)
+	VALUES ($1, $2, $3, $4)
+	ON CONFLICT (id) DO UPDATE SET
+		username = EXCLUDED.username,
+		bio = EXCLUDED.bio,
+		avatar = EXCLUDED.avatar`,
+		userID, username, bio, avatar,
+	)
+	return err
+}
+
+func (ps *Repository) IsEventProcessed(ctx context.Context, eventID string) (bool, error) {
+	var exists bool
+	err := ps.DB.QueryRow(ctx, 
+	`SELECT EXISTS(SELECT 1 from processed_events WHERE event_id = $1)`,
+	eventID,
+	).Scan(&exists)
+	return exists, err
+}
+
+
+func (ps *Repository) MarkEventProcessed(ctx context.Context, eventID, eventType string) error {
+	_, err := ps.DB.Exec(ctx, 
+	`INSERT INTO processed_events (event_id, event_type) VALUES ($1, $2)`,
+	eventID, eventType,
+	)
+	return err
 }
