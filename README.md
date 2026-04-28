@@ -6,23 +6,28 @@ Go microservices backend for a small social-style app. It’s composed of an HTT
 
 - `backend-services/`: everything (services + docker compose)
   - `docker-compose.yml`: runs gateway, services, and 4 Postgres containers
+  - `openapi.yaml`: gateway OpenAPI specification
+  - `ENDPOINTS.md`: human-readable endpoint reference
   - `gateway-service/`: API gateway (reverse proxy + JWT auth middleware)
   - `auth-service/`: registration/login + JWT issuance + user lookup/delete
   - `chat-service/`: conversation APIs + message CRUD + WebSocket chat
-  - `feed-service/`: publication CRUD + feed listing endpoints
-  - `profile-service/`: profile CRUD
+  - `feed-service/`: publication + comments CRUD + feed listing endpoints
+  - `profile-service/`: profile CRUD + avatar + Kafka events
 
 ## Tech stack
 
 - **Language**: Go
+- **Frontend**: React + TypeScript + Vite
 - **HTTP**: Go stdlib `net/http` (`http.ServeMux` route patterns)
 - **Style**: straightforward Go services built on stdlib (minimal framework magic)
 - **Gateway proxy**: Go stdlib `net/http/httputil` reverse proxy
 - **Auth**: JWT (`github.com/golang-jwt/jwt/v5`), password hashing (`golang.org/x/crypto`)
 - **Realtime**: Gorilla WebSocket (`github.com/gorilla/websocket`) in chat-service
+- **Messaging**: Kafka (`confluent-kafka-go`) for cross-service events
 - **DB**: Postgres 16 (Docker), `pgx` (`github.com/jackc/pgx/v5`)
 - **Migrations**: `golang-migrate` (`github.com/golang-migrate/migrate/v4`)
 - **Config**: `viper` (`github.com/spf13/viper`)
+- **API docs**: OpenAPI 3.0 (`backend-services/openapi.yaml`)
 - **Dev orchestration**: Docker + Docker Compose
 
 ## Architecture

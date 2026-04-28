@@ -1,0 +1,374 @@
+openapi: 3.0.3
+info:
+  title: Wave Connect Gateway API
+  version: 1.0.0
+  description: |
+    Gateway API spec synchronized to backend route registrations.
+servers:
+  - url: http://localhost:8080
+security:
+  - bearerAuth: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    AuthRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+    RegisterResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+    PublicationRequest:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+    CommentRequest:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+    ProfileCreateRequest:
+      type: object
+      required: [username]
+      properties:
+        username:
+          type: string
+    ProfileUpdateRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        bio:
+          type: string
+    MessageUpdateRequest:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+paths:
+  /api/auth/register:
+    post:
+      security: []
+      summary: Register user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '200':
+          description: Registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterResponse'
+  /api/auth/login:
+    post:
+      security: []
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
+      responses:
+        '202':
+          description: Logged in. JWT returned in Authorization response header.
+          headers:
+            Authorization:
+              schema:
+                type: string
+                example: Bearer <jwt>
+  /api/auth/id/:
+    get:
+      summary: Get current user
+      responses:
+        '202':
+          description: User returned
+  /api/auth/:
+    delete:
+      summary: Delete current user
+      responses:
+        '202':
+          description: User deleted
+  /api/feed/:
+    post:
+      summary: Create publication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublicationRequest'
+      responses:
+        '201':
+          description: Created
+    get:
+      summary: Get feed
+      responses:
+        '200':
+          description: Feed list
+  /api/feed/user/{userID}:
+    get:
+      summary: Get publications by user
+      parameters:
+        - in: path
+          name: userID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User publications
+  /api/feed/{id}:
+    get:
+      summary: Get publication by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Publication
+    put:
+      summary: Update own publication
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublicationRequest'
+      responses:
+        '204':
+          description: Updated
+    delete:
+      summary: Delete own publication
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Deleted
+  /api/feed/{pubID}/comment/:
+    post:
+      summary: Create comment
+      parameters:
+        - in: path
+          name: pubID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommentRequest'
+      responses:
+        '201':
+          description: Created
+    get:
+      summary: List comments
+      parameters:
+        - in: path
+          name: pubID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Comments
+  /api/feed/comment/{id}:
+    delete:
+      summary: Delete own comment
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Deleted
+  /api/profile/:
+    post:
+      summary: Create profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileCreateRequest'
+      responses:
+        '200':
+          description: Created
+    put:
+      summary: Update own profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileUpdateRequest'
+      responses:
+        '204':
+          description: Updated
+    delete:
+      summary: Delete own profile
+      responses:
+        '204':
+          description: Deleted
+  /api/profile/{id}:
+    get:
+      summary: Get profile by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Profile
+  /api/profile/username/{username}:
+    get:
+      summary: Get profile by username
+      parameters:
+        - in: path
+          name: username
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Profile
+  /api/profile/avatar/:
+    put:
+      summary: Update avatar
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '204':
+          description: Updated
+  /api/profile/avatar/{id}:
+    get:
+      summary: Get avatar by user id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Avatar bytes
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+  /api/chat/conversation:
+    get:
+      summary: Get all conversations/messages for current user
+      responses:
+        '200':
+          description: Message list
+  /api/chat/conversation/{peerID}:
+    get:
+      summary: Get conversation with peer
+      parameters:
+        - in: path
+          name: peerID
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Message list
+  /api/chat/{id}:
+    get:
+      summary: Get message by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Message
+    put:
+      summary: Update own message
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageUpdateRequest'
+      responses:
+        '204':
+          description: Updated
+    delete:
+      summary: Delete own message
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Deleted
+  /api/chat/ws:
+    get:
+      summary: WebSocket endpoint
+      description: |
+        WebSocket upgrade endpoint. Authenticate with Bearer JWT (or jwt cookie) via gateway.
+        Message protocol handled after upgrade (not fully represented in OpenAPI).
+      responses:
+        '101':
+          description: Switching Protocols
