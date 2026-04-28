@@ -43,7 +43,7 @@ func (s *Service) Register(ctx context.Context, usrRequest *domain.UserRequest) 
 		return nil, err
 	}
 
-	s.sendProfileCreatedEvent(usrResponse.ID)
+	s.sendUserRegisteredEvent(usrResponse.ID)
 	return usrResponse, nil
 }
 
@@ -75,14 +75,14 @@ func (s *Service) DeleteUser(ctx context.Context, id string) error {
 }
 
 // kafka events
-func (s *Service) sendProfileCreatedEvent(userID string) {
+func (s *Service) sendUserRegisteredEvent(userID string) {
 	event := map[string]interface{}{
 		"user_id":  userID,
 
 	}
 	value, _ := json.Marshal(event)
 
-	err := s.producer.Send("user.registered", userID, value)
+	err := s.producer.Send("user-registered", userID, value)
 	if err != nil {
 		log.Printf("kafka send error:%v\n", err)
 	}

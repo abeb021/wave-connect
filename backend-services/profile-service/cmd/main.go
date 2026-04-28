@@ -9,7 +9,7 @@ import (
 	"profile-service/api/http/handlers"
 	"profile-service/api/http/middleware"
 	"profile-service/internal/config"
-	"profile-service/internal/kafka"
+	profilekafka "profile-service/internal/kafka"
 	"profile-service/internal/repository"
 	"profile-service/internal/service"
 	"syscall"
@@ -45,7 +45,7 @@ func main() {
 
 	//backend architecture setup
 	repo := repository.NewRepository(dbPool)
-	producer, err := kafka.NewProducer(cfg.KafkaBroker)
+	producer, err := profilekafka.NewProducer(cfg.KafkaBroker)
 	if err != nil{
 		log.Fatal("kafka producer", err)
 	}
@@ -53,6 +53,19 @@ func main() {
 	srv := service.NewService(repo, producer)
 	h := handlers.NewHandler(srv)
 	
+		// Kafka consumer 
+	consumer, err := profilekafka.NewConsumer(cfg.KafkaBroker, "profile-service", repo)
+	if err != nil{
+		log.Fatalf("kafka consumer: %v\n", err)
+	}
+	defer consumer.Close()
+
+	go func (){
+		log.Println("starting kafka consumer")
+		if err := consumer.Start(ctx, []string{"user-registered"}); err != nil{
+			log.Printf("consumer stopped")
+		}
+	}()
 
 
 	//routing

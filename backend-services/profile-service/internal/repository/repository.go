@@ -51,7 +51,15 @@ func (ps *Repository) CreateProfile(ctx context.Context, profReq *domain.CreateP
 	return &prof, nil
 }
 
-func (ps *Repository) GetProfile(ctx context.Context, user_id string) (*domain.Profile, error) {
+func (ps *Repository) CreateProfileByID(ctx context.Context, userID string) error {
+	_, err := ps.DB.Exec(ctx,
+	`INSERT INTO profiles (id) VALUES ($1) ON CONFLICT (id) DO NOTHING`,
+	userID,
+	)
+	return err
+}
+
+func (ps *Repository) GetProfile(ctx context.Context, userID string) (*domain.Profile, error) {
 
 	var prof domain.Profile
 
@@ -60,7 +68,7 @@ func (ps *Repository) GetProfile(ctx context.Context, user_id string) (*domain.P
 		`SELECT id, username, bio, time_created
 		 FROM profiles 
 		 WHERE id = $1`,
-		user_id)
+		userID)
 
 	err := row.Scan(&prof.ID, &prof.Username, &prof.Bio, &prof.TimeCreated)
 	if err != nil {
@@ -161,4 +169,23 @@ func (ps *Repository) GetAvatar(ctx context.Context, userID string) ([]byte, err
 	}
 
 	return imgBytes, nil
+}
+
+// KAFKA CONSUMER METHODS
+func (ps *Repository) IsEventProcessed(ctx context.Context, eventID string) (bool, error) {
+	var exists bool
+	err := ps.DB.QueryRow(ctx, 
+	`SELECT EXISTS(SELECT 1 from processed_events WHERE event_id = $1)`,
+	eventID,
+	).Scan(&exists)
+	return exists, err
+}
+
+
+func (ps *Repository) MarkEventProcessed(ctx context.Context, eventID, eventType string) error {
+	_, err := ps.DB.Exec(ctx, 
+	`INSERT INTO processed_events (event_id, event_type) VALUES ($1, $2)`,
+	eventID, eventType,
+	)
+	return err
 }

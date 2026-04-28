@@ -52,6 +52,7 @@ func main() {
 	if err != nil{
 		log.Fatal("kafka producer", err)
 	}
+	defer producer.Close()
 	srv := service.NewService(repo, auth, producer)
 	h := handlers.NewHandler(srv)
 
