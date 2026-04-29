@@ -1,9 +1,8 @@
 package repository
 
 import (
-	"context"
 	"chat-service/internal/domain"
-
+	"context"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"

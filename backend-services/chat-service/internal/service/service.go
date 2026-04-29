@@ -1,8 +1,8 @@
 package service
 
 import (
-	"chat-service/internal/repository"
 	"chat-service/internal/domain"
+	"chat-service/internal/repository"
 	"context"
 )
 
