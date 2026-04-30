@@ -106,8 +106,8 @@ func (h *Handler) UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	err := h.Srv.UpdateProfile(r.Context(), &prof)
 
 	if err != nil {
-		if err.Error() == "ID/Username not found" {
-			http.Error(w, "ID/Username not found", http.StatusNotFound)
+		if err == domain.ErrProfileNotFound {
+			http.Error(w, domain.ErrProfileNotFound.Error(), http.StatusNotFound)
 			return
 		}
 		http.Error(w, "failed to update profile", http.StatusInternalServerError)
@@ -123,8 +123,8 @@ func (h *Handler) DeleteProfile(w http.ResponseWriter, r *http.Request) {
 	err := h.Srv.DeleteProfile(r.Context(), userID)
 
 	if err != nil {
-		if err.Error() == "ID not found" {
-			http.Error(w, "ID not found", http.StatusNotFound)
+		if err == domain.ErrProfileNotFound {
+			http.Error(w, domain.ErrProfileNotFound.Error(), http.StatusNotFound)
 			return
 		}
 		http.Error(w, "failed to delete profile", http.StatusInternalServerError)

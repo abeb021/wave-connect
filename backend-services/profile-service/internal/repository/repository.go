@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"errors"
 	"strings"
 
 	"profile-service/internal/domain"
@@ -114,7 +113,7 @@ func (ps *Repository) UpdateProfile(ctx context.Context, prof *domain.Profile) e
 		return err
 	}
 	if ct.RowsAffected() == 0 {
-		return errors.New("ID/Username not found")
+		return domain.ErrProfileNotFound
 	}
 
 	return nil
@@ -132,7 +131,7 @@ func (ps *Repository) DeleteProfile(ctx context.Context, id string) error {
 		return err
 	}
 	if ct.RowsAffected() == 0 {
-		return errors.New("ID not found")
+		return domain.ErrProfileNotFound
 	}
 
 	return nil
