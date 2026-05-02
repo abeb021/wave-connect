@@ -108,8 +108,8 @@ func (h *Handler) UpdatePublication(w http.ResponseWriter, r *http.Request) {
 	err := h.Srv.UpdatePublication(r.Context(), id, pub.Text, pub.UserID)
 
 	if err != nil {
-		if err.Error() == "ID not found" {
-			http.Error(w, "ID not found", http.StatusNotFound)
+		if err == domain.ErrPublicationNotFound {
+			http.Error(w, "publication not found", http.StatusNotFound)
 			return
 		}
 		http.Error(w, "failed to update publication", http.StatusInternalServerError)
@@ -127,8 +127,8 @@ func (h *Handler) DeletePublication(w http.ResponseWriter, r *http.Request) {
 	err := h.Srv.DeletePublication(r.Context(), id, userID)
 
 	if err != nil {
-		if err.Error() == "ID not found" {
-			http.Error(w, "ID not found", http.StatusNotFound)
+		if err == domain.ErrPublicationNotFound {
+			http.Error(w, "publication not found", http.StatusNotFound)
 			return
 		}
 		http.Error(w, "failed to delete publication", http.StatusInternalServerError)
@@ -154,7 +154,7 @@ func (h *Handler) CreateComment(w http.ResponseWriter, r *http.Request) {
 	comment, err := h.Srv.CreateComment(r.Context(), &commentReq)
 
 	if err != nil {
-		if err.Error() == "Publication not found" {
+		if err == domain.ErrPublicationNotFound {
 			http.Error(w, "Publication not found", http.StatusNotFound)
 			return
 		}
@@ -196,8 +196,8 @@ func (h *Handler) DeleteComment(w http.ResponseWriter, r *http.Request) {
 	err := h.Srv.DeleteComment(r.Context(), id, userID)
 
 	if err != nil {
-		if err.Error() == "ID not found" {
-			http.Error(w, "ID not found", http.StatusNotFound)
+		if err == domain.ErrCommentNotFound {
+			http.Error(w, "comment not found", http.StatusNotFound)
 			return
 		}
 		http.Error(w, "failed to delete comment", http.StatusInternalServerError)
