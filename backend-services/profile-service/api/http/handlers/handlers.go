@@ -60,6 +60,7 @@ func (h *Handler) GetProfile(w http.ResponseWriter, r *http.Request) {
 	id := r.PathValue("id")
 	if id == ""{
 		http.Error(w, "user id is required", http.StatusBadRequest)
+		return
 	}
 	prof, err := h.Srv.GetProfile(r.Context(), id)
 

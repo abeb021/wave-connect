@@ -84,7 +84,7 @@ func (ps *Repository) GetUserById(ctx context.Context, id string) (*domain.UserR
 
 	row := ps.DB.QueryRow(
 		ctx,
-		`SELECT id, email, created_at
+		`SELECT id, email, time_created
 		 FROM users 
 		 WHERE id = $1`,
 		id)
