@@ -20,7 +20,13 @@ func NewHandler(srv *service.Service) *Handler {
 }
 
 func (h *Handler) RegisterRoutes(r *http.ServeMux) {
-	r.HandleFunc("POST /api/profile", h.CreateProfile)
+	r.HandleFunc("POST /api/profile/", h.CreateProfile)
+	r.HandleFunc("GET /api/profile/{id}", h.GetProfile)
+	r.HandleFunc("GET /api/profile/username/{username}", h.GetProfileByUsername)
+	r.HandleFunc("PUT /api/profile/", h.UpdateProfile)
+	r.HandleFunc("DELETE /api/profile/", h.DeleteProfile)
+	r.HandleFunc("PUT /api/profile/avatar/", h.UpdateAvatar)
+	r.HandleFunc("GET /api/profile/avatar/{id}", h.GetAvatar)
 }
 
 func (h *Handler) CreateProfile(w http.ResponseWriter, r *http.Request) {
