@@ -64,7 +64,7 @@ func (ps *Repository) GetProfile(ctx context.Context, userID string) (*domain.Pr
 
 	row := ps.DB.QueryRow(
 		ctx,
-		`SELECT id, username, bio, time_created
+		`SELECT id, COALESCE(username, ''), bio, time_created
 		 FROM profiles 
 		 WHERE id = $1`,
 		userID)
