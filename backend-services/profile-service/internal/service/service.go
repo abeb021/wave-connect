@@ -5,16 +5,14 @@ import (
 	"encoding/json"
 	"log"
 	"profile-service/internal/domain"
-	"profile-service/internal/kafka"
-	"profile-service/internal/repository"
 )
 
 type Service struct {
-	Repo     *repository.Repository
-	producer *kafka.Producer
+	Repo     RepositoryInterface
+	producer ProducerInterface
 }
 
-func NewService(repo *repository.Repository, producer *kafka.Producer) *Service {
+func NewService(repo RepositoryInterface, producer ProducerInterface) *Service {
 	return &Service{
 		Repo:     repo,
 		producer: producer,
