@@ -53,7 +53,7 @@ func main() {
 	srv := service.NewService(repo, producer)
 	h := handlers.NewHandler(srv)
 	
-		// Kafka consumer 
+	// Kafka consumer 
 	consumer, err := profilekafka.NewConsumer(cfg.KafkaBroker, "profile-service", repo)
 	if err != nil{
 		log.Fatalf("kafka consumer: %v\n", err)
