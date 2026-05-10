@@ -52,3 +52,15 @@ func TestCreateProfile_RepoError(t *testing.T) {
 	assert.Error(t, err)
 	assert.False(t, sent, "expected kafka event not to be called")
 }
+
+func TestGetProfileSuccess(t *testing.T) {
+	repo := &mockRepo{
+		GetProfileMock: func(ctx context.Context, id string) (*domain.Profile, error) {
+			return &domain.Profile{Username: "testuser", ID: id}, nil
+		},
+	}
+
+	svc := NewService(repo, &mockProducer{})
+	prof, err := svc.GetProfile(context.Background(), "id123")
+
+}
